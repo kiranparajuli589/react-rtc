@@ -1,14 +1,15 @@
 # Capture Studio
 
-Browser-based media recorder built with Next.js. Capture camera, microphone, screen, or screen + camera, preview locally, download, or keep recordings in the current session.
+Browser-based media recorder demo built with Next.js. Capture camera, microphone, screen, or screen + camera using core Web APIs (`getUserMedia`, `getDisplayMedia`, `MediaRecorder`). Preview locally, download, keep recordings in the current session, or use the resulting blob in any API payload.
 
-> **Note:** Capture Studio uses browser media capture APIs (`getUserMedia`, `getDisplayMedia`, `MediaRecorder`). It does not use WebRTC peer connections (ICE, SFU, signaling).
+> **Note:** This app does not use WebRTC peer connections (ICE, SFU, signaling). It is a client-side capture demo only—no upload pipeline is included.
 
 ## Features
 
 - Camera, audio, screen, and screen + webcam recording modes
 - Countdown, mirror, and camera quality settings (720p / 1080p)
-- Local preview, download, and session persistence (no upload)
+- Local preview, download, and in-session persistence (blob ready for API use; no built-in upload)
+- Draggable webcam overlay on screen + camera mode (size presets, shared placement in preview and recording)
 - IndexedDB chunk spillover for long recordings
 - Accessible UI built with shadcn / Radix primitives
 - Seven locales (en, de, es, fr, hi, ne, zh)
@@ -54,10 +55,11 @@ pnpm build
 - [ ] Record camera mode: countdown, record, pause, resume, stop, download
 - [ ] Record audio mode with device picker
 - [ ] Record screen mode (desktop): stop share via browser UI → recording stops gracefully
-- [ ] Record screen + camera: move webcam position, verify composite preview
-- [ ] Restart from preview discards in-place (does not return to menu)
+- [ ] Record screen + camera: drag webcam overlay, change size preset, verify composite preview matches recording
+- [ ] Restart from preview: one discard confirm; screen modes re-open the share picker, then countdown starts when the stream is ready
 - [ ] Switch language and theme from toolbar
 - [ ] Keep recording in session, navigate away and back
+- [ ] Download recording and verify blob is available for external API use
 - [ ] Verify error boundary reload button (optional: force error in dev)
 
 ## Permissions troubleshooting
@@ -69,8 +71,9 @@ pnpm build
 
 ## Known limitations
 
-- Recordings stay on your device until you download or clear them (no cloud upload).
-- Screen resolution follows the picker, not the quality setting.
+- Demo only—no cloud upload. Download, clear, or pass the blob to your own API.
+- Screen resolution follows the system share picker, not the camera quality setting.
+- Screen + camera restart requires picking the screen again before the countdown begins.
 - Desktop notifications require browser permission and may use the service worker when available.
 
 ## Architecture

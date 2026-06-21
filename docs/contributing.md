@@ -6,15 +6,17 @@
 2. Add menu option in `app/constants/recording.ts` with `messageKey` for i18n.
 3. Create a mode hook under `app/hooks/recorder/` wrapping `useMediaRecorder` + `useStream`.
 4. Add a recorder component under `app/components/features/recorderMenu/`.
-5. Register in `RecorderModePanel` with `dynamic()` import.
+5. Register in `RecorderModePanel` (`app/components/features/recorderMenu/recorderModePanel/`) with `dynamic()` import.
 6. Add strings to **all seven** locale files in `messages/`.
 7. Document behavior in an ADR if the pipeline changes.
+
+For **screen + camera**, reuse `DraggableWebcamPip`, `screenWebcamCompositor`, and `WebcamOverlayPlacement`—keep preview and compositor placement in sync.
 
 ## i18n rules
 
 - Brand name: **Capture Studio** (keep untranslated in titles).
 - No hardcoded user-facing English in components or hooks—use `useTranslations`.
-- Namespaces: `common`, `menu`, `toolbar`, `notifications`, `errors`, `countdown`, `devices`, `webcamOverlay`, etc.
+- Namespaces: `common`, `menu`, `toolbar`, `confirm`, `notifications`, `errors`, `countdown`, `devices`, `webcamOverlay`, `createAnnouncement`, etc.
 - Notification copy lives in `notifications` namespace; hooks pass translated strings to `notifyMe`.
 
 ## Hook conventions
