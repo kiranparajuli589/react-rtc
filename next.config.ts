@@ -1,5 +1,12 @@
-import type { NextConfig } from "next"
+import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
-const nextConfig: NextConfig = {}
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
-export default nextConfig
+const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ["lucide-react", "radix-ui"],
+  },
+};
+
+export default withNextIntl(nextConfig);

@@ -3,6 +3,19 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 
+// next-themes injects an inline <script> to prevent theme flicker before hydration.
+// React 19 warns about script tags inside components; the script still runs correctly during SSR.
+// https://github.com/shadcn-ui/ui/issues/10104
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  const originalConsoleError = console.error
+  console.error = (...args: unknown[]) => {
+    if (typeof args[0] === "string" && args[0].includes("Encountered a script tag")) {
+      return
+    }
+    originalConsoleError.apply(console, args)
+  }
+}
+
 function ThemeProvider({
   children,
   ...props

@@ -19,7 +19,18 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/config": ["./app/config.ts"],
+      "@/constants/*": ["./app/constants/*"],
+      "@/contexts/*": ["./app/contexts/*"],
+      "@/types/*": ["./app/types/*"],
+      "@/helpers/*": ["./app/helpers/*"],
+      "@/hooks/*": ["./app/hooks/*"],
+      "@/core/*": ["./app/components/core/*"],
+      "@/designSystem/*": ["./app/components/designSystem/*"],
+      "@/skeletons/*": ["./app/components/skeletons/*"],
+      "@/features/*": ["./app/components/features/*"],
+      "@/styles/*": ["./app/styles/*"],
     }
   },
   "include": [

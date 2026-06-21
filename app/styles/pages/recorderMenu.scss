@@ -1,0 +1,562 @@
+@reference "../globals.css";
+
+.recorder_menu {
+  padding-inline: 1rem;
+  $containerMaxWidth: 1000px;
+  min-height: 100vh;
+  max-width: $containerMaxWidth;
+  margin: 0 auto;
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    max-width: $containerMaxWidth;
+    margin: 0 auto;
+
+    padding-top: 6rem;
+
+    &.small-padding {
+      padding-top: 2rem;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      line-height: 1.8rem;
+      font-weight: 500;
+      @apply text-primary;
+      margin-bottom: 1.2rem;
+      text-align: center;
+
+      @media only screen and (max-width: 600px) {
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+    }
+
+    &__subtitle {
+      font-size: 0.875rem;
+      line-height: 1rem;
+      font-weight: 400;
+      color: var(--recorder-text-secondary);
+      margin-bottom: 4rem;
+      text-align: center;
+    }
+  }
+
+  &__options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    max-width: $containerMaxWidth;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+
+    &__item {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+
+      max-width: 185px;
+      max-height: 225px;
+
+      @media only screen and (max-width: 412px) {
+        width: 100%;
+        min-width: 100%;
+      }
+
+      height: 100%;
+      padding: 1rem;
+      border-radius: 8px;
+      background-color: var(--recorder-card-bg);
+      box-shadow: rgba(0, 0, 0, 0.05) 0 6px 24px 0, rgba(0, 0, 0, 0.08) 0 0 0 1px;
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+      border: none;
+      color: var(--foreground);
+
+      &:focus {
+        @apply outline-2 outline-primary;
+        background-color: var(--recorder-card-active);
+      }
+
+      &:active {
+        background-color: var(--recorder-card-active);
+        box-shadow: rgba(50, 50, 93, 0.25) 0 2px 5px -1px, rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
+      }
+
+      &__info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px;
+        padding: 1rem 1rem 0;
+        transition: all 0.3s ease-in-out;
+      }
+
+      &__image {
+        border-radius: 8px;
+        aspect-ratio: 1;
+        width: 150px;
+        height: 150px;
+        max-width: 150px;
+        max-height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--recorder-icon-bg);
+        color: var(--color-primary, #0a91d9);
+
+        svg {
+          flex-shrink: 0;
+        }
+      }
+
+      &__title {
+        font-size: 1rem;
+        text-align: center;
+        white-space: nowrap;
+
+        @media only screen and (max-width: 400px) {
+          font-size: 0.875rem;
+          white-space: pre-wrap;
+        }
+
+        color: var(--recorder-text-secondary);
+        margin-bottom: 0.2rem;
+        transition: font-size 0.15s ease-in-out;
+      }
+
+      &:hover &__title {
+        color: var(--foreground);
+      }
+      &:hover {
+        background-color: var(--recorder-card-hover);
+        box-shadow: rgba(50, 50, 93, 0.25) 0 2px 5px -1px, rgba(0, 0, 0, 0.3) 0 1px 3px -1px;
+      }
+      &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+        pointer-events: none;
+      }
+    }
+  }
+
+    &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    min-height: 3.5rem;
+
+    &--skeleton {
+      pointer-events: none;
+    }
+
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    @media only screen and (max-width: 600px) {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    svg {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    &__back__wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      @media only screen and (max-width: 600px) {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    &__back {
+      $dimension: 32px;
+      border-radius: 50%;
+      @apply text-muted-foreground border-border;
+      border-width: 1px;
+      border-style: solid;
+      padding: 0.2rem;
+      width: $dimension;
+      min-width: $dimension;
+      max-height: $dimension;
+      min-height: $dimension;
+      aspect-ratio: 1;
+      transition: all 0.2s ease-in-out;
+      background: transparent;
+      cursor: pointer;
+
+      svg {
+        width: 1.5rem;
+        height: 1.5rem;
+      }
+
+      &:hover {
+        @apply text-foreground border-border;
+      }
+      &:focus {
+        @apply outline-ring;
+      }
+      &:active {
+        background-color: var(--recorder-control-bg);
+      }
+    }
+
+    &__theme-toggle {
+      svg {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+
+    &__timer {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      .record-dot {
+        display: inline-block;
+        height: 0.6rem;
+        width: 0.6rem;
+        border-radius: 50%;
+        background-color: #ff0000;
+      }
+      .blinking {
+        animation: blink 1.5s infinite;
+      }
+
+      &__status {
+        font-size: 1.4rem;
+        color: var(--foreground);
+        font-weight: 500;
+      }
+      &__slash,
+      &__limit {
+        color: var(--recorder-text-secondary);
+      }
+    }
+
+    button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      border: none;
+      cursor: pointer;
+      &:disabled {
+        pointer-events: none;
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+
+    &__actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+
+      @media only screen and (max-width: 600px) {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: space-between;
+        width: 100%;
+      }
+
+      &.hide-on-mobile {
+        @media only screen and (max-width: 600px) {
+          display: none;
+        }
+      }
+
+      button:not(.recorder_menu__toolbar__theme-toggle):not(.recording-action-btn) {
+        padding-right: 0.6rem;
+        padding-block: 0.2rem;
+        border-radius: 8px;
+        gap: 0;
+        background-color: var(--muted);
+        color: var(--muted-foreground);
+        &:hover {
+          background-color: var(--accent);
+        }
+        &:focus-visible {
+          @apply outline-ring;
+        }
+        &:active {
+          background-color: var(--secondary);
+        }
+      }
+
+      .recording-action-btn {
+        font-weight: 600;
+        transition:
+          background-color 0.15s ease,
+          border-color 0.15s ease,
+          color 0.15s ease,
+          box-shadow 0.15s ease;
+      }
+
+      .start_recording_button,
+      .stop_recording_button,
+      .restart_recording_button {
+        padding-right: 1rem;
+        padding-left: 0.4rem;
+
+        svg {
+          fill: currentColor;
+          padding: 0.4rem 0.3rem 0.4rem 0.6rem;
+        }
+      }
+    }
+  }
+
+  &__messages {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-block: 3rem 2rem;
+    padding: 1rem;
+    text-align: center;
+    position: relative;
+    border: 1px solid var(--recorder-border);
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    margin-inline: auto;
+    font-size: 0.875rem;
+
+    &__close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      border-radius: 50%;
+      padding: 0.3rem;
+      cursor: pointer;
+      color: var(--recorder-text-secondary);
+      font-size: 1.5rem;
+      line-height: 1.5rem;
+      transition: all 0.2s ease-in-out;
+      border: none;
+      background: transparent;
+      &:hover {
+        background: var(--muted);
+        color: var(--foreground);
+      }
+    }
+    &__error {
+      color: red;
+    }
+    &__info {
+      @apply text-primary;
+      button {
+        border-radius: 24px;
+        background: var(--recorder-icon-bg);
+        border: 1px solid var(--recorder-border);
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        color: var(--foreground);
+      }
+    }
+  }
+
+  &__actions {
+    $borderRadius: 24px;
+    margin-block: 2rem;
+
+    &.disable_actions {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    &__controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin-block: 1rem;
+      @media only screen and (max-width: 600px) {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+    }
+    &__button {
+      border: 1px solid var(--recorder-border);
+      border-radius: $borderRadius;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.5rem 1rem;
+      max-width: 250px;
+      background: var(--recorder-control-bg);
+      cursor: pointer;
+      color: var(--recorder-control-text);
+
+      @media only screen and (max-width: 700px) {
+        max-width: 200px;
+      }
+
+      &:disabled {
+        pointer-events: none;
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
+    }
+    &__dropdown {
+      position: absolute;
+      bottom: 120%;
+      border: 1px solid var(--recorder-border);
+      border-radius: 16px;
+      background-color: var(--popover);
+      padding: 0.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: start;
+      gap: 0.5rem;
+
+      button {
+        width: 100%;
+        text-align: left;
+        padding: 0.5rem 0.75rem;
+        border: none;
+        border-radius: 8px;
+        background: transparent;
+        cursor: pointer;
+        color: var(--popover-foreground);
+
+        &:hover {
+          background: var(--muted);
+        }
+
+        &.selected {
+          background: var(--recorder-icon-bg);
+          @apply text-primary;
+          font-weight: 500;
+        }
+      }
+
+      &__info {
+        font-size: 0.75rem;
+        color: var(--recorder-text-secondary);
+        padding: 0.25rem 0.5rem;
+      }
+    }
+  }
+
+  &__enumerating {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: all 0.5s ease-in-out;
+
+    &.show {
+      transform: scale(1);
+      opacity: 1;
+    }
+    &.hide {
+      transform: scale(0);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    &__container {
+      background-color: var(--card);
+      color: var(--card-foreground);
+      padding: 1rem;
+      border-radius: 24px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+
+      .title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+
+        span {
+          @apply text-primary;
+        }
+      }
+
+      .subtitle {
+        font-size: 0.875rem;
+        color: var(--recorder-text-secondary);
+      }
+    }
+
+    img {
+      max-width: 300px;
+      aspect-ratio: 1;
+      margin-inline: auto;
+    }
+  }
+}
+
+.settings_dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  &__submenu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &__title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted-foreground);
+      padding-inline: 0.25rem;
+    }
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.35rem 0.25rem;
+    cursor: pointer;
+
+    &__info {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--foreground);
+    }
+
+    input[type="checkbox"] {
+      width: 1rem;
+      height: 1rem;
+      accent-color: var(--color-primary, #0a91d9);
+    }
+  }
+}

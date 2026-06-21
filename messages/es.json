@@ -1,0 +1,187 @@
+{
+  "common": {
+    "appName": "Capture Studio",
+    "skipToRecorder": "Skip to recorder",
+    "cancel": "Cancel",
+    "allow": "Allow",
+    "settings": "Settings",
+    "goBack": "Go back",
+    "stay": "Stay",
+    "discard": "Discard",
+    "clear": "Clear",
+    "download": "Download",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "start": "Start",
+    "restart": "Restart",
+    "starting": "Starting",
+    "record": "Record",
+    "ready": "Ready",
+    "recording": "Recording",
+    "paused": "Paused",
+    "stopped": "Stopped",
+    "selectAudio": "Select audio",
+    "selectVideo": "Select video",
+    "permissionDenied": "Permission denied",
+    "audio": "audio",
+    "video": "video"
+  },
+  "language": {
+    "label": "Language",
+    "toggle": "Change language",
+    "english": "English",
+    "nepali": "Nepali",
+    "hindi": "Hindi",
+    "spanish": "Spanish",
+    "french": "French",
+    "german": "German",
+    "chinese": "Chinese"
+  },
+  "theme": {
+    "label": "Theme",
+    "toggle": "Toggle theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "menu": {
+    "title": "What would you like to record?",
+    "subtitle": "Bienvenido a Capture Studio. Seleccione una opción para comenzar su grabación.",
+    "privacy": "Esta es una demostración de grabación en el navegador con APIs web principales. Descarga o borra cuando quieras — el blob está listo para enviarse en cualquier payload de API.",
+    "documentTitle": "Menú de grabación | Capture Studio",
+    "desktopOnlyScreen": "La grabación de pantalla requiere un navegador de escritorio."
+  },
+  "recordingOptions": {
+    "camera": {
+      "title": "Camera",
+      "subtitle": "Record your video"
+    },
+    "audio": {
+      "title": "Audio",
+      "subtitle": "Record your voice"
+    },
+    "screen": {
+      "title": "Screen",
+      "subtitle": "Record your screen"
+    },
+    "screenVideo": {
+      "title": "Screen & Camera",
+      "subtitle": "Record your screen and camera"
+    },
+    "recordAria": "Record {title}: {subtitle}"
+  },
+  "permissions": {
+    "requestingAlt": "Requesting for permissions",
+    "clickAllow": "Click <allow>Allow</allow>",
+    "enumerating": "We are currently enumerating your devices, please allow access to your camera and microphone.",
+    "required": "Permission required",
+    "microphoneDenied": "Permission denied to access the microphone.",
+    "cameraDenied": "Permission denied to access the camera.",
+    "screenDenied": "Permission denied to access the screen.",
+    "reload": "Allow browser permissions and reload the page to proceed.",
+    "dismiss": "Dismiss permission message",
+    "deviceIdsHint": "Device IDs appear random until the browser has permission to read device names.",
+    "selectAudioDevice": "Select audio device",
+    "selectVideoDevice": "Select video device"
+  },
+  "settings": {
+    "legend": "Settings",
+    "mirrorCamera": "Mirror camera",
+    "countdown": "Countdown",
+    "videoQualityLegend": "Video quality (camera mode only)",
+    "videoQualityHint": "Screen recording uses the resolution you pick in the share dialog.",
+    "mediumQuality": "Medium (720p)",
+    "highQuality": "High (1080p)",
+    "ariaLabel": "Recorder settings",
+    "qualityRestartToast": "Camera will restart to apply the new quality setting."
+  },
+  "toolbar": {
+    "clearSaved": "Clear saved recording",
+    "downloadRecording": "Download recording",
+    "pauseRecording": "Pause recording",
+    "resumeRecording": "Resume recording",
+    "stopRecording": "Stop recording",
+    "stopMinLength": "Recording must be at least 1 second long",
+    "startRecording": "Start recording",
+    "discardAndReturn": "Discard recording and return to menu",
+    "waitCountdown": "Please wait for the countdown to finish",
+    "statusAnnouncement": "{status}. Elapsed time {time}.",
+    "minuteElapsed": "Recording. {count} minute elapsed.",
+    "minutesElapsed": "Recording. {count} minutes elapsed.",
+    "discardTitle": "Discard saved recording?",
+    "discardDescription": "This will remove your saved recording and return to the menu.",
+    "keepRecording": "Keep recording",
+    "clearTitle": "Clear saved recording?",
+    "clearDescription": "This removes the recording saved in this session.",
+    "restartTitle": "¿Descartar la grabación actual?",
+    "restartDescription": "Iniciar una nueva grabación descartará la actual.",
+    "restartConfirm": "Descartar y reiniciar",
+    "cameraActive": "La vista previa de la cámara está activa y lista para grabar."
+  },
+  "confirm": {
+    "leaveTitle": "Leave without saving?",
+    "leaveDescription": "Your recording will be lost if you go back.",
+    "goBack": "Go back",
+    "discardRecordingTitle": "¿Descartar la grabación actual?",
+    "discardRecordingDescription": "Iniciar una nueva grabación descartará la actual.",
+    "discardAndRestart": "Descartar y reiniciar",
+    "keepRecording": "Mantener grabación"
+  },
+  "createAnnouncement": {
+    "ariaLabel": "Keep recording in this session",
+    "saved": "Saved to session",
+    "keep": "Keep recording",
+    "success": "Recording saved—you can leave and return without losing it.",
+    "error": "Failed to save the recording."
+  },
+  "recorderTitles": {
+    "audio": "Audio Recorder | Capture Studio",
+    "audioRecording": "Audio Recording - {time} | Capture Studio",
+    "screen": "Screen Recorder | Capture Studio",
+    "screenRecording": "Screen Recording - {time} | Capture Studio",
+    "video": "Video Recorder | Capture Studio",
+    "videoRecording": "Video Recording - {time} | Capture Studio"
+  },
+  "notifications": {
+    "brandTitle": "Capture Studio",
+    "recordingTitle": "Recording with Capture Studio",
+    "countdownStart": "Hang tight! Recording will start in 3 seconds.",
+    "recordingStarted": "Recording started!",
+    "timeLimitReached": "You've reached the recording time limit. Thank you and enjoy your recording.",
+    "screenShareEnded": "Screen sharing stopped. Your recording has been saved.",
+    "canvasPrimeTimeout": "Preview took too long to start. Recording may begin with a brief delay.",
+    "recorderUnsupported": "Unable to start the recorder in this browser. Try a different browser or recording mode.",
+    "streamReadyAudio": "Audio stream is ready! You can start recording now. Click the red button to start recording.",
+    "streamReadyVideo": "Camera stream is ready! You can start recording now. Click the red button to start recording.",
+    "streamReadyScreen": "Screen stream is ready for recording! Please return to the Capture Studio tab to start recording.",
+    "streamReadyScreenVideo": "Screen with camera stream is ready for recording! Please return to the Capture Studio tab to start recording.",
+    "nudgeReminder": "Reminder: Please start your recording by pressing the red button on the recorder page.",
+    "nudgeHello": "Hello, recording hasn't started yet. Please press the red button on the recorder page to begin."
+  },
+  "errors": {
+    "boundaryTitle": "Algo salió mal con el grabador",
+    "boundaryDescription": "Recargue la página para restablecer los permisos de cámara, micrófono y pantalla.",
+    "reload": "Recargar página"
+  },
+  "countdown": {
+    "title": "Cuenta regresiva de grabación",
+    "description": "La grabación comenzará al terminar la cuenta regresiva. Pulse Escape o Cancelar para abortar.",
+    "startsIn": "La grabación comienza en {count}…",
+    "startsInAria": "La grabación comienza en {count}",
+    "cancel": "Cancelar"
+  },
+  "devices": {
+    "pureAudio": "Audio puro (cancelación de eco y supresión de ruido)"
+  },
+  "webcamOverlay": {
+    "sizeLabel": "Tamaño de webcam",
+    "sizeAria": "Seleccionar tamaño del overlay de webcam",
+    "sizeXs": "Muy pequeño",
+    "sizeSm": "Pequeño",
+    "sizeMd": "Mediano",
+    "sizeLg": "Grande",
+    "sizeXl": "Muy grande",
+    "dragWebcamAria": "Arrastra para reposicionar la webcam"
+  }
+}
