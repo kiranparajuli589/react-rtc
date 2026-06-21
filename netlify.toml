@@ -1,0 +1,15 @@
+[build]
+  command = "pnpm build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Next.js App Router — Netlify handles routing, middleware, and serverless functions.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Document optional client env vars (set real values in the Netlify UI).
+[template.environment]
+  NEXT_PUBLIC_RECORD_TIME_LIMIT_IN_SEC = "7200"
+  NEXT_PUBLIC_DEBUG = "false"
+  NEXT_PUBLIC_BASE_URL = ""
