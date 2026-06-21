@@ -1,34 +1,37 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react"
 
-type VideoSource = string | { src: string; type?: string } | null | undefined;
+type VideoSource = string | { src: string; type?: string } | null | undefined
 
 type VideoPlayerProps = {
-  src: VideoSource;
-  duration?: number;
-  onComponentReady?: () => void;
-};
+  src: VideoSource
+  duration?: number
+  onComponentReady?: () => void
+}
 
-export default function VideoPlayer({ src, onComponentReady = () => {} }: VideoPlayerProps) {
-  const ref = useRef<HTMLVideoElement | null>(null);
-  const readyForSrcRef = useRef<string | null>(null);
+export default function VideoPlayer({
+  src,
+  onComponentReady = () => {},
+}: VideoPlayerProps) {
+  const ref = useRef<HTMLVideoElement | null>(null)
+  const readyForSrcRef = useRef<string | null>(null)
 
-  const resolvedSrc = typeof src === "string" ? src : src?.src;
-  const videoSrc = resolvedSrc ? resolvedSrc : undefined;
+  const resolvedSrc = typeof src === "string" ? src : src?.src
+  const videoSrc = resolvedSrc ? resolvedSrc : undefined
 
   useEffect(() => {
-    readyForSrcRef.current = null;
-  }, [videoSrc]);
+    readyForSrcRef.current = null
+  }, [videoSrc])
 
   const handleReady = () => {
     if (!videoSrc || readyForSrcRef.current === videoSrc) {
-      return;
+      return
     }
-    readyForSrcRef.current = videoSrc;
-    onComponentReady();
-  };
+    readyForSrcRef.current = videoSrc
+    onComponentReady()
+  }
 
   if (!videoSrc) {
-    return null;
+    return null
   }
 
   return (
@@ -43,5 +46,5 @@ export default function VideoPlayer({ src, onComponentReady = () => {} }: VideoP
       onCanPlay={handleReady}
       aria-label="Recording preview"
     />
-  );
+  )
 }

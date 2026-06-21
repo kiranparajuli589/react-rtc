@@ -1,18 +1,18 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react"
 
 type SkeletonBoxProps = {
-  width?: CSSProperties["width"];
-  maxHeight?: CSSProperties["maxHeight"];
-  minHeight?: CSSProperties["minHeight"];
-  maxWidth?: CSSProperties["maxWidth"];
-  minWidth?: CSSProperties["minWidth"];
-  height?: CSSProperties["height"];
-  borderRadius?: CSSProperties["borderRadius"];
-  backgroundColor?: CSSProperties["backgroundColor"];
-  children?: ReactNode;
-  className?: string;
-  style?: CSSProperties;
-};
+  width?: CSSProperties["width"]
+  maxHeight?: CSSProperties["maxHeight"]
+  minHeight?: CSSProperties["minHeight"]
+  maxWidth?: CSSProperties["maxWidth"]
+  minWidth?: CSSProperties["minWidth"]
+  height?: CSSProperties["height"]
+  borderRadius?: CSSProperties["borderRadius"]
+  backgroundColor?: CSSProperties["backgroundColor"]
+  children?: ReactNode
+  className?: string
+  style?: CSSProperties
+}
 
 export default function SkeletonBox({
   width = "100%",
@@ -44,5 +44,5 @@ export default function SkeletonBox({
     >
       {children}
     </div>
-  );
+  )
 }

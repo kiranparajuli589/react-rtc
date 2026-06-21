@@ -1,25 +1,26 @@
-"use client";
+"use client"
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react"
 
-import { Maximize2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { Maximize2 } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 
-import DraggableWebcamPip from "./DraggableWebcamPip";
-import RecorderShell from "../recorderShell";
-import CreateAnnouncementRow from "../createAnnouncementRow";
-import RecorderToolbar from "../recorderToolbar";
+import DraggableWebcamPip from "./DraggableWebcamPip"
+import RecorderShell from "../recorderShell"
+import CreateAnnouncementRow from "../createAnnouncementRow"
+import RecorderToolbar from "../recorderToolbar"
 
-import { RECORDING_TYPE } from "@/constants/recordingTypes";
-import { WebcamSizeOptions } from "@/constants/recording";
-import { useRecording } from "@/contexts/recordingContext";
-import VideoPlayer from "@/core/mediaPlayer/VideoPlayer";
-import Icon from "@/designSystem/icon";
-import useBlobObjectUrl from "@/hooks/useBlobObjectUrl";
-import useScreenWithCamRecorder from "@/hooks/recorder/useScreenWithCamRecorder";
-import type { WebcamOverlaySize } from "@/types/recording";
-import type { ScreenWithWebcamRecorderProps } from "@/types/recorder";
+import { RECORDING_TYPE } from "@/constants/recordingTypes"
+import { WebcamSizeOptions } from "@/constants/recording"
+import { useRecording } from "@/contexts/recordingContext"
+import VideoPlayer from "@/core/mediaPlayer/VideoPlayer"
+import Icon from "@/designSystem/icon"
+import useBlobObjectUrl from "@/hooks/useBlobObjectUrl"
+import useLatestRef from "@/hooks/useLatestRef"
+import useScreenWithCamRecorder from "@/hooks/recorder/useScreenWithCamRecorder"
+import type { WebcamOverlaySize } from "@/types/recording"
+import type { ScreenWithWebcamRecorderProps } from "@/types/recorder"
 
 export default function ScreenWithWebcamRecorder({
   muteAudio,
@@ -29,11 +30,11 @@ export default function ScreenWithWebcamRecorder({
   recorderSettings,
   setSelectedRecordingOption,
 }: ScreenWithWebcamRecorderProps) {
-  const tPermissions = useTranslations("permissions");
-  const tTitles = useTranslations("recorderTitles");
-  const tOverlay = useTranslations("webcamOverlay");
-  const { recordingData } = useRecording();
-  const compositeContainerRef = useRef<HTMLDivElement>(null);
+  const tPermissions = useTranslations("permissions")
+  const tTitles = useTranslations("recorderTitles")
+  const tOverlay = useTranslations("webcamOverlay")
+  const { recordingData } = useRecording()
+  const compositeContainerRef = useRef<HTMLDivElement>(null)
 
   const {
     screenRef,
@@ -75,33 +76,45 @@ export default function ScreenWithWebcamRecorder({
     recorderSettings,
     muteAudio,
     isMicDisabled,
-  });
+  })
 
-  const previewObjectUrl = useBlobObjectUrl(recordBlob);
+  const previewObjectUrl = useBlobObjectUrl(recordBlob)
+
+  const initScreenStreamRef = useLatestRef(initScreenStream)
+  const selectedAudioDeviceRef = useLatestRef(selectedAudioDevice)
+
+  useEffect(() => {
+    initScreenStreamRef.current(selectedAudioDeviceRef.current)
+  }, [initScreenStreamRef, selectedAudioDeviceRef])
+
+  useEffect(() => {
+    if (!recordingData) return
+
+    setIsStopped(true)
+    setRecordBlob(
+      recordingData.blob.slice(
+        0,
+        recordingData.blob.size,
+        recordingData.mimeType
+      )
+    )
+    setRecordTimer(recordingData.timer)
+  }, [recordingData, setIsStopped, setRecordBlob, setRecordTimer])
 
   useEffect(() => {
     if (streamPermissionDenied) {
-      setSelectedRecordingOption(null);
-      toast.error(tPermissions("screenDenied"));
+      setSelectedRecordingOption(null)
+      toast.error(tPermissions("screenDenied"))
     }
-  }, [streamPermissionDenied, setSelectedRecordingOption, tPermissions]);
-
-  useEffect(() => {
-    initScreenStream(selectedAudioDevice);
-    if (recordingData) {
-      setIsStopped(true);
-      setRecordBlob(recordingData.blob.slice(0, recordingData.blob.size, recordingData.mimeType));
-      setRecordTimer(recordingData.timer);
-    }
-  }, []);
+  }, [streamPermissionDenied, setSelectedRecordingOption, tPermissions])
 
   useEffect(() => {
     if (isRecording) {
-      document.title = tTitles("screenRecording", { time: formattedTimer });
+      document.title = tTitles("screenRecording", { time: formattedTimer })
     } else {
-      document.title = tTitles("screen");
+      document.title = tTitles("screen")
     }
-  }, [formattedTimer, isRecording, tTitles]);
+  }, [formattedTimer, isRecording, tTitles])
 
   return (
     <RecorderShell
@@ -131,9 +144,12 @@ export default function ScreenWithWebcamRecorder({
             <select
               value={webcamOverlay.size}
               onChange={(e) =>
-                setWebcamOverlay((prev) => ({ ...prev, size: e.target.value as WebcamOverlaySize }))
+                setWebcamOverlay((prev) => ({
+                  ...prev,
+                  size: e.target.value as WebcamOverlaySize,
+                }))
               }
-              className="rounded-md p-1 px-2 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-opacity-50"
+              className="focus:ring-opacity-50 rounded-md p-1 px-2 focus:ring-2 focus:ring-slate-500 focus:outline-none"
               aria-label={tOverlay("sizeAria")}
             >
               {WebcamSizeOptions.map((option) => (
@@ -152,7 +168,6 @@ export default function ScreenWithWebcamRecorder({
       isStopped={isStopped}
       recordBlob={recordBlob}
       isRecording={isRecording}
-      isPlayerReady={playerReady}
       isStreamReady={Boolean(screenStream)}
       previewVariant="video"
       previewContent={
@@ -224,5 +239,5 @@ export default function ScreenWithWebcamRecorder({
         </div>
       }
     />
-  );
+  )
 }

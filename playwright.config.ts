@@ -1,4 +1,4 @@
-import { defineConfig, devices } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test"
 
 export default defineConfig({
   testDir: "./e2e",
@@ -9,7 +9,10 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:3000",
     trace: "on-first-retry",
     launchOptions: {
-      args: ["--use-fake-device-for-media-stream", "--use-fake-ui-for-media-stream"],
+      args: [
+        "--use-fake-device-for-media-stream",
+        "--use-fake-ui-for-media-stream",
+      ],
     },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
@@ -18,4 +21,4 @@ export default defineConfig({
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
   },
-});
+})

@@ -1,21 +1,28 @@
-"use client";
+"use client"
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react"
 
-import { Circle, Download, Pause, Play, RefreshCcwDot, Trash2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import {
+  Circle,
+  Download,
+  Pause,
+  Play,
+  RefreshCcwDot,
+  Trash2,
+} from "lucide-react"
+import { useTranslations } from "next-intl"
 
-import { BackButton, RecorderActionButton } from "../buttonItems";
+import { BackButton, RecorderActionButton } from "../buttonItems"
 
-import { LanguageToggle } from "@/components/language-toggle";
-import { ThemeToggle } from "@/components/theme-toggle";
-import Config from "@/config";
-import { useConfirm } from "@/contexts/confirmDialogContext";
-import { useRecording } from "@/contexts/recordingContext";
-import { formatTime } from "@/core/mediaPlayer/utils";
-import { BrowserDictionary, getBrowserName } from "@/helpers/browserHelper";
-import { cn } from "@/lib/utils";
-import type { RecorderToolbarProps } from "@/types/recorder";
+import { LanguageToggle } from "@/components/language-toggle"
+import { ThemeToggle } from "@/components/theme-toggle"
+import Config from "@/config"
+import { useConfirm } from "@/contexts/confirmDialogContext"
+import { useRecording } from "@/contexts/recordingContext"
+import { formatTime } from "@/core/mediaPlayer/utils"
+import { BrowserDictionary, getBrowserName } from "@/helpers/browserHelper"
+import { cn } from "@/lib/utils"
+import type { RecorderToolbarProps } from "@/types/recorder"
 
 export default function RecorderToolbar({
   setSelectedRecordingOption,
@@ -33,46 +40,52 @@ export default function RecorderToolbar({
   countDownStatus,
   isStreamReady,
 }: RecorderToolbarProps) {
-  const confirm = useConfirm();
-  const tCommon = useTranslations("common");
-  const tToolbar = useTranslations("toolbar");
-  const { recordingData, setRecordingData } = useRecording();
-  const liveRegionRef = useRef<HTMLDivElement>(null);
-  const lastAnnouncedMinuteRef = useRef(-1);
+  const confirm = useConfirm()
+  const tCommon = useTranslations("common")
+  const tToolbar = useTranslations("toolbar")
+  const { recordingData, setRecordingData } = useRecording()
+  const liveRegionRef = useRef<HTMLDivElement>(null)
+  const lastAnnouncedMinuteRef = useRef(-1)
 
-  const isRestartAtPreview = isStopped && !isRecording;
-  const isStartDisabled = isRestartAtPreview ? !!countDownStatus : !isStreamReady || isRecording || !!countDownStatus;
+  const isRestartAtPreview = isStopped && !isRecording
+  const isStartDisabled = isRestartAtPreview
+    ? !!countDownStatus
+    : !isStreamReady || isRecording || !!countDownStatus
 
   const statusLabel = (() => {
-    if (isRecording && isPaused) return tCommon("paused");
-    if (isRecording) return tCommon("recording");
-    if (isStopped) return tCommon("stopped");
-    return tCommon("ready");
-  })();
+    if (isRecording && isPaused) return tCommon("paused")
+    if (isRecording) return tCommon("recording")
+    if (isStopped) return tCommon("stopped")
+    return tCommon("ready")
+  })()
 
   useEffect(() => {
-    if (!liveRegionRef.current) return;
-    liveRegionRef.current.textContent = tToolbar("statusAnnouncement", { status: statusLabel, time: formattedTimer });
-  }, [statusLabel, formattedTimer, tToolbar]);
+    if (!liveRegionRef.current) return
+    liveRegionRef.current.textContent = tToolbar("statusAnnouncement", {
+      status: statusLabel,
+      time: formattedTimer,
+    })
+  }, [statusLabel, formattedTimer, tToolbar])
 
   useEffect(() => {
-    if (!isRecording || isPaused) return;
-    const minute = Math.floor(recordTimer / 60);
+    if (!isRecording || isPaused) return
+    const minute = Math.floor(recordTimer / 60)
     if (minute > 0 && minute !== lastAnnouncedMinuteRef.current) {
-      lastAnnouncedMinuteRef.current = minute;
+      lastAnnouncedMinuteRef.current = minute
       if (liveRegionRef.current) {
         liveRegionRef.current.textContent =
           minute === 1
             ? tToolbar("minuteElapsed", { count: minute })
-            : tToolbar("minutesElapsed", { count: minute });
+            : tToolbar("minutesElapsed", { count: minute })
       }
     }
-  }, [recordTimer, isRecording, isPaused, tToolbar]);
+  }, [recordTimer, isRecording, isPaused, tToolbar])
 
   useEffect(() => {
-    if (!isStreamReady || isRecording || isStopped || !liveRegionRef.current) return;
-    liveRegionRef.current.textContent = tToolbar("cameraActive");
-  }, [isStreamReady, isRecording, isStopped, tToolbar]);
+    if (!isStreamReady || isRecording || isStopped || !liveRegionRef.current)
+      return
+    liveRegionRef.current.textContent = tToolbar("cameraActive")
+  }, [isStreamReady, isRecording, isStopped, tToolbar])
 
   const startRecording = async () => {
     if (recordingData?.blob) {
@@ -82,9 +95,9 @@ export default function RecorderToolbar({
         confirmLabel: tCommon("discard"),
         cancelLabel: tToolbar("keepRecording"),
         destructive: true,
-      });
-      if (!ok) return;
-      setRecordingData(null);
+      })
+      if (!ok) return
+      setRecordingData(null)
     }
 
     if (isRestartAtPreview) {
@@ -94,14 +107,14 @@ export default function RecorderToolbar({
         confirmLabel: tToolbar("restartConfirm"),
         cancelLabel: tToolbar("keepRecording"),
         destructive: true,
-      });
-      if (!ok) return;
-      recorderStart(true);
-      return;
+      })
+      if (!ok) return
+      recorderStart(true)
+      return
     }
 
-    recorderStart(true);
-  };
+    recorderStart(true)
+  }
 
   const clearSavedRecording = async () => {
     const ok = await confirm({
@@ -110,36 +123,51 @@ export default function RecorderToolbar({
       confirmLabel: tCommon("clear"),
       cancelLabel: tCommon("cancel"),
       destructive: true,
-    });
-    if (!ok) return;
-    setRecordingData(null);
-  };
+    })
+    if (!ok) return
+    setRecordingData(null)
+  }
 
-  const minimumRecordingLengthInSeconds = 1;
+  const minimumRecordingLengthInSeconds = 1
 
   return (
     <div className="recorder_menu__toolbar">
-      <div ref={liveRegionRef} className="sr-only" aria-live="polite" aria-atomic="true" />
+      <div
+        ref={liveRegionRef}
+        className="sr-only"
+        aria-live="polite"
+        aria-atomic="true"
+      />
 
       <BackButton
         onClick={() => {
-          setSelectedRecordingOption(null);
-          setRecordingData(null);
+          setSelectedRecordingOption(null)
+          setRecordingData(null)
         }}
         isBlobAvailable={!!recordingData?.blob}
       />
 
       {(isRecording || isStopped) && (
         <div className="recorder_menu__toolbar__timer">
-          <span className={`record-dot ${isRecording ? "blinking" : ""}`} aria-hidden="true" />
+          <span
+            className={`record-dot ${isRecording ? "blinking" : ""}`}
+            aria-hidden="true"
+          />
           <span className="sr-only">{statusLabel}</span>
-          <span aria-hidden="true" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <span
+            aria-hidden="true"
+            className="text-xs font-medium tracking-wide text-muted-foreground uppercase"
+          >
             {statusLabel}
           </span>
           <div className="flex items-center gap-1">
-            <span className="recorder_menu__toolbar__timer__status">{formattedTimer}</span>
+            <span className="recorder_menu__toolbar__timer__status">
+              {formattedTimer}
+            </span>
             <span className="recorder_menu__toolbar__timer__slash">/</span>
-            <span className="recorder_menu__toolbar__timer__limit">{formatTime(Config.RECORD_TIME_LIMIT_IN_SEC)}</span>
+            <span className="recorder_menu__toolbar__timer__limit">
+              {formatTime(Config.RECORD_TIME_LIMIT_IN_SEC)}
+            </span>
           </div>
         </div>
       )}
@@ -187,7 +215,11 @@ export default function RecorderToolbar({
           <RecorderActionButton
             icon={Circle}
             label={tCommon("stop")}
-            disabled={!mediaRecorder || !isRecording || recordTimer < minimumRecordingLengthInSeconds}
+            disabled={
+              !mediaRecorder ||
+              !isRecording ||
+              recordTimer < minimumRecordingLengthInSeconds
+            }
             className="stop_recording_button"
             title={
               isRecording && recordTimer <= minimumRecordingLengthInSeconds
@@ -200,11 +232,19 @@ export default function RecorderToolbar({
         {!isRecording && (
           <RecorderActionButton
             icon={isStopped ? RefreshCcwDot : Circle}
-            label={countDownStatus ? tCommon("starting") : isStopped ? tCommon("restart") : tCommon("start")}
+            label={
+              countDownStatus
+                ? tCommon("starting")
+                : isStopped
+                  ? tCommon("restart")
+                  : tCommon("start")
+            }
             disabled={isStartDisabled}
             className={cn(
               isStopped ? "restart_recording_button" : "start_recording_button",
-              !isStopped && getBrowserName() !== BrowserDictionary.Safari && "animate-pulse",
+              !isStopped &&
+                getBrowserName() !== BrowserDictionary.Safari &&
+                "animate-pulse"
             )}
             title={
               isRestartAtPreview
@@ -218,5 +258,5 @@ export default function RecorderToolbar({
         )}
       </div>
     </div>
-  );
+  )
 }

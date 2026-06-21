@@ -1,27 +1,27 @@
-"use client";
+"use client"
 
-import { Moon, Sun } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
+import { Moon, Sun } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { useTheme } from "next-themes"
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-import { useIsClient } from "@/hooks/useIsClient";
+} from "@/components/ui/dropdown-menu"
+import { cn } from "@/lib/utils"
+import { useIsClient } from "@/hooks/useIsClient"
 
 type ThemeToggleProps = {
-  className?: string;
-};
+  className?: string
+}
 
 export function ThemeToggle({ className }: ThemeToggleProps) {
-  const t = useTranslations("theme");
-  const { theme, setTheme } = useTheme();
-  const mounted = useIsClient();
+  const t = useTranslations("theme")
+  const { theme, setTheme } = useTheme()
+  const mounted = useIsClient()
 
   if (!mounted) {
     return (
@@ -32,7 +32,7 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         aria-label={t("label")}
         disabled
       />
-    );
+    )
   }
 
   return (
@@ -41,7 +41,10 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         <Button
           type="button"
           variant="ghost"
-          className={cn("recorder_menu__toolbar__theme-toggle relative", className)}
+          className={cn(
+            "recorder_menu__toolbar__theme-toggle relative",
+            className
+          )}
           aria-label={t("toggle")}
         >
           <Sun className="size-5 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
@@ -49,16 +52,25 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")} className={cn(theme === "light" && "bg-accent")}>
+        <DropdownMenuItem
+          onClick={() => setTheme("light")}
+          className={cn(theme === "light" && "bg-accent")}
+        >
           {t("light")}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")} className={cn(theme === "dark" && "bg-accent")}>
+        <DropdownMenuItem
+          onClick={() => setTheme("dark")}
+          className={cn(theme === "dark" && "bg-accent")}
+        >
           {t("dark")}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")} className={cn(theme === "system" && "bg-accent")}>
+        <DropdownMenuItem
+          onClick={() => setTheme("system")}
+          className={cn(theme === "system" && "bg-accent")}
+        >
           {t("system")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

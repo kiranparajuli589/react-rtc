@@ -1,11 +1,11 @@
-import { getAudioContextClass } from "@/helpers/audioContext";
+import { getAudioContextClass } from "@/helpers/audioContext"
 
 export type BuildRecordStreamArgs = {
-  stream: MediaStream;
-  canvas: HTMLCanvasElement | null;
-  isMicDisabled: boolean;
-  canvasCaptureFrameRate: number;
-};
+  stream: MediaStream
+  canvas: HTMLCanvasElement | null
+  isMicDisabled: boolean
+  canvasCaptureFrameRate: number
+}
 
 /**
  * Builds the MediaStream passed to MediaRecorder.
@@ -17,22 +17,22 @@ export function buildRecordStream({
   isMicDisabled,
   canvasCaptureFrameRate,
 }: BuildRecordStreamArgs): MediaStream {
-  const tracks: MediaStreamTrack[] = [];
+  const tracks: MediaStreamTrack[] = []
 
   if (canvas) {
-    tracks.push(...canvas.captureStream(canvasCaptureFrameRate).getTracks());
+    tracks.push(...canvas.captureStream(canvasCaptureFrameRate).getTracks())
   } else {
-    tracks.push(...stream.getVideoTracks());
+    tracks.push(...stream.getVideoTracks())
   }
 
   if (!isMicDisabled) {
-    tracks.push(...stream.getAudioTracks());
+    tracks.push(...stream.getAudioTracks())
   }
 
-  return new MediaStream(tracks);
+  return new MediaStream(tracks)
 }
 
 /** @deprecated AudioContext is only needed for visualizers, not recording. */
 export function createAudioContext(): AudioContext {
-  return new (getAudioContextClass())();
+  return new (getAudioContextClass())()
 }

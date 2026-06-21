@@ -1,27 +1,39 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
-import { requestNotificationPermission } from "../desktopNotification";
-import useMediaRecorder from "../useMediaRecorder";
-import useStream from "../useStream";
+import { requestNotificationPermission } from "../desktopNotification"
+import useMediaRecorder from "../useMediaRecorder"
+import useStream from "../useStream"
 
-import { RECORDING_TYPE } from "@/constants/recordingTypes";
-import { getOverlayCameraConstraints } from "@/helpers/mediaConstraints";
-import ConsoleLogger from "@/helpers/consoleLogger";
-import { computeCompositorLayout, drawScreenOnlyFrame, drawScreenWebcamFrame } from "@/helpers/screenWebcamCompositor";
-import { CAPTURE_TARGET_FPS, shouldDrawThisFrame } from "@/helpers/videoFrameHelper";
-import useScreenTrackMonitor from "@/hooks/recorder/useScreenTrackMonitor";
-import { DEFAULT_WEBCAM_OVERLAY } from "@/constants/recording";
-import type { RecorderSettings, WebcamOverlayPlacement } from "@/types/recording";
+import { RECORDING_TYPE } from "@/constants/recordingTypes"
+import useOnUnmount from "@/hooks/useOnUnmount"
+import usePreviewReady from "@/hooks/usePreviewReady"
+import { getOverlayCameraConstraints } from "@/helpers/mediaConstraints"
+import ConsoleLogger from "@/helpers/consoleLogger"
+import {
+  computeCompositorLayout,
+  drawScreenOnlyFrame,
+  drawScreenWebcamFrame,
+} from "@/helpers/screenWebcamCompositor"
+import {
+  CAPTURE_TARGET_FPS,
+  shouldDrawThisFrame,
+} from "@/helpers/videoFrameHelper"
+import useScreenTrackMonitor from "@/hooks/recorder/useScreenTrackMonitor"
+import { DEFAULT_WEBCAM_OVERLAY } from "@/constants/recording"
+import type {
+  RecorderSettings,
+  WebcamOverlayPlacement,
+} from "@/types/recording"
 
 type UseScreenWithCamRecorderArgs = {
-  selectedAudioDevice: string | null;
-  selectedVideoDevice: string | null;
-  recorderSettings: RecorderSettings;
-  muteAudio: boolean;
-  isMicDisabled: boolean;
-};
+  selectedAudioDevice: string | null
+  selectedVideoDevice: string | null
+  recorderSettings: RecorderSettings
+  muteAudio: boolean
+  isMicDisabled: boolean
+}
 
-const CANVAS_CAPTURE_FPS = CAPTURE_TARGET_FPS;
+const CANVAS_CAPTURE_FPS = CAPTURE_TARGET_FPS
 
 export default function useScreenWithCamRecorder({
   selectedAudioDevice,
@@ -30,26 +42,62 @@ export default function useScreenWithCamRecorder({
   muteAudio,
   isMicDisabled,
 }: UseScreenWithCamRecorderArgs) {
-  const [playerReady, setPlayerReady] = useState(false);
-  const [webcamOverlay, setWebcamOverlay] = useState<WebcamOverlayPlacement>(DEFAULT_WEBCAM_OVERLAY);
+  const [webcamOverlay, setWebcamOverlay] = useState<WebcamOverlayPlacement>(
+    DEFAULT_WEBCAM_OVERLAY
+  )
 
-  const { isPermissionDenied: streamPermissionDenied, initAudioStream, initCameraStream, initScreenStream, clearStream, micStream, cameraStream, screenStream, screenRef, videoRef } =
-    useStream();
+  const {
+    isPermissionDenied: streamPermissionDenied,
+    initAudioStream,
+    initCameraStream,
+    initScreenStream,
+    clearStream,
+    micStream,
+    cameraStream,
+    screenStream,
+    screenRef,
+    videoRef,
+  } = useStream()
 
-  const getCameraStreamConstraints = (): { aspectRatio: number; mediaConstraints: MediaStreamConstraints } => ({
-    aspectRatio: 1,
-    mediaConstraints: getOverlayCameraConstraints(selectedVideoDevice, recorderSettings.quality),
-  });
+  const getCameraStreamConstraints = useCallback(
+    (): {
+      aspectRatio: number
+      mediaConstraints: MediaStreamConstraints
+    } => ({
+      aspectRatio: 1,
+      mediaConstraints: getOverlayCameraConstraints(
+        selectedVideoDevice,
+        recorderSettings.quality
+      ),
+    }),
+    [recorderSettings.quality, selectedVideoDevice]
+  )
 
-  const reinitializeStreams = () => {
-    setPlayerReady(false);
-    clearStream();
+  const resetPlayerReadyRef = useRef(() => {})
+
+  const reinitializeStreams = useCallback(() => {
+    resetPlayerReadyRef.current()
+    clearStream()
     if (!muteAudio && !isMicDisabled) {
-      initAudioStream(selectedAudioDevice, recorderSettings.quality);
+      initAudioStream(selectedAudioDevice, recorderSettings.quality)
     }
-    initScreenStream(selectedAudioDevice, { force: true, quality: recorderSettings.quality });
-    initCameraStream(selectedVideoDevice, getCameraStreamConstraints());
-  };
+    initScreenStream(selectedAudioDevice, {
+      force: true,
+      quality: recorderSettings.quality,
+    })
+    initCameraStream(selectedVideoDevice, getCameraStreamConstraints())
+  }, [
+    clearStream,
+    getCameraStreamConstraints,
+    initAudioStream,
+    initCameraStream,
+    initScreenStream,
+    isMicDisabled,
+    muteAudio,
+    recorderSettings.quality,
+    selectedAudioDevice,
+    selectedVideoDevice,
+  ])
 
   const useMediaRec = useMediaRecorder({
     type: RECORDING_TYPE.SCREEN_VIDEO,
@@ -59,7 +107,7 @@ export default function useScreenWithCamRecorder({
     isMicDisabled: isMicDisabled || muteAudio,
     canvasCaptureFrameRate: CANVAS_CAPTURE_FPS,
     quality: recorderSettings.quality,
-  });
+  })
 
   const {
     mediaStreamRef,
@@ -89,180 +137,209 @@ export default function useScreenWithCamRecorder({
     setRecordBlob,
     onCancelRecordingInit,
     signalCanvasPrimed,
-  } = useMediaRec;
+  } = useMediaRec
 
-  const layoutRef = useRef<ReturnType<typeof computeCompositorLayout> | null>(null);
-  const canvasDimensionsRef = useRef<{ width: number; height: number } | null>(null);
-  const overlayLayoutKeyRef = useRef("");
-  const compositorWebcamRef = useRef<HTMLVideoElement | null>(null);
+  const { playerReady, setPlayerReady } = usePreviewReady(recordBlob)
 
-  const getOverlayLayoutKey = () =>
-    `${webcamOverlay.centerX}:${webcamOverlay.centerY}:${webcamOverlay.size}`;
+  useLayoutEffect(() => {
+    resetPlayerReadyRef.current = () => setPlayerReady(false)
+  })
+
+  const layoutRef = useRef<ReturnType<typeof computeCompositorLayout> | null>(
+    null
+  )
+  const canvasDimensionsRef = useRef<{ width: number; height: number } | null>(
+    null
+  )
+  const overlayLayoutKeyRef = useRef("")
+  const compositorWebcamRef = useRef<HTMLVideoElement | null>(null)
+
+  const getOverlayLayoutKey = useCallback(
+    () =>
+      `${webcamOverlay.centerX}:${webcamOverlay.centerY}:${webcamOverlay.size}`,
+    [webcamOverlay.centerX, webcamOverlay.centerY, webcamOverlay.size]
+  )
 
   useEffect(() => {
-    const video = compositorWebcamRef.current;
+    const video = compositorWebcamRef.current
     if (!video || !cameraStream) {
-      return;
+      return
     }
     if (video.srcObject !== cameraStream) {
-      video.srcObject = cameraStream;
+      video.srcObject = cameraStream
     }
-    video.muted = true;
-    video.playsInline = true;
-    void video.play().catch(() => {});
-  }, [cameraStream]);
+    video.muted = true
+    video.playsInline = true
+    void video.play().catch(() => {})
+  }, [cameraStream])
 
   useEffect(() => {
     if (selectedVideoDevice) {
-      initCameraStream(selectedVideoDevice, getCameraStreamConstraints());
+      initCameraStream(selectedVideoDevice, getCameraStreamConstraints())
     }
-  }, [selectedVideoDevice]);
+  }, [selectedVideoDevice, getCameraStreamConstraints, initCameraStream])
 
   useEffect(() => {
     if (selectedAudioDevice && !muteAudio && !isMicDisabled) {
-      initAudioStream(selectedAudioDevice);
+      initAudioStream(selectedAudioDevice)
     }
-  }, [selectedAudioDevice, muteAudio, isMicDisabled]);
+  }, [selectedAudioDevice, muteAudio, isMicDisabled, initAudioStream])
 
   useEffect(() => {
-    requestNotificationPermission();
-    return () => {
-      clearStream();
-      clearMediaRecorder();
-    };
-  }, []);
+    requestNotificationPermission()
+  }, [])
+
+  useOnUnmount(() => {
+    clearStream()
+    clearMediaRecorder()
+  })
 
   useEffect(() => {
     if (!screenStream) {
-      setMediaStream(null);
-      mediaStreamRef.current = null;
-      return;
+      setMediaStream(null)
+      mediaStreamRef.current = null
+      return
     }
 
-    const newStream = new MediaStream();
+    const newStream = new MediaStream()
     if (micStream) {
-      micStream.getTracks().forEach((track) => newStream.addTrack(track));
+      micStream.getTracks().forEach((track) => newStream.addTrack(track))
     }
-    screenStream.getAudioTracks().forEach((track) => newStream.addTrack(track));
-    ConsoleLogger.info("Screen stream ready for recorder setup.", { hasMic: Boolean(micStream) });
-    setMediaStream(newStream);
-    mediaStreamRef.current = newStream;
-  }, [micStream, screenStream]);
+    screenStream.getAudioTracks().forEach((track) => newStream.addTrack(track))
+    ConsoleLogger.info("Screen stream ready for recorder setup.", {
+      hasMic: Boolean(micStream),
+    })
+    setMediaStream(newStream)
+    mediaStreamRef.current = newStream
+  }, [micStream, screenStream, mediaStreamRef, setMediaStream])
 
   useEffect(() => {
     if (screenStream) {
-      const screenTrack = screenStream.getVideoTracks()[0];
-      const { width = 0, height = 0 } = screenTrack.getSettings();
+      const screenTrack = screenStream.getVideoTracks()[0]
+      const { width = 0, height = 0 } = screenTrack.getSettings()
       if (width > 0 && height > 0) {
-        canvasDimensionsRef.current = { width, height };
+        canvasDimensionsRef.current = { width, height }
       }
     }
-  }, [screenStream]);
+  }, [screenStream])
 
-  useEffect(() => {
-    setPlayerReady(false);
-  }, [recordBlob]);
-
-  const showCompositePreview = isRecording;
+  const showCompositePreview = isRecording
 
   useScreenTrackMonitor({
     screenStream,
     isRecording,
     onScreenShareEnded: recorderStop,
-  });
+  })
 
   useEffect(() => {
     if (!isEncoderActive || !screenStream) {
-      return undefined;
+      return undefined
     }
 
-    const canvas = canvasRef.current;
-    const screenVideo = screenRef.current;
+    const canvas = canvasRef.current
+    const screenVideo = screenRef.current
     if (!canvas || !screenVideo) {
-      return undefined;
+      return undefined
     }
 
-    const context = canvas.getContext("2d", { alpha: false, desynchronized: true });
+    const context = canvas.getContext("2d", {
+      alpha: false,
+      desynchronized: true,
+    })
     if (!context) {
-      return undefined;
+      return undefined
     }
 
-    let frameId: number | null = null;
-    let cancelled = false;
-    let lastDrawMs = 0;
-    let hasPrimed = false;
+    let frameId: number | null = null
+    let cancelled = false
+    let lastDrawMs = 0
+    let hasPrimed = false
 
     const syncCanvasDimensions = () => {
       if (isRecording && canvasDimensionsRef.current) {
-        const { width, height } = canvasDimensionsRef.current;
+        const { width, height } = canvasDimensionsRef.current
         if (canvas.width !== width || canvas.height !== height) {
-          return;
+          return
         }
       }
 
-      const cached = canvasDimensionsRef.current;
+      const cached = canvasDimensionsRef.current
       if (cached && cached.width > 0 && cached.height > 0) {
         if (canvas.width !== cached.width || canvas.height !== cached.height) {
-          canvas.width = cached.width;
-          canvas.height = cached.height;
-          layoutRef.current = null;
+          canvas.width = cached.width
+          canvas.height = cached.height
+          layoutRef.current = null
         }
-        return;
+        return
       }
 
-      const screenTrack = screenStream.getVideoTracks()[0];
-      const { width = 0, height = 0 } = screenTrack.getSettings();
-      if (width > 0 && height > 0 && (canvas.width !== width || canvas.height !== height)) {
-        canvas.width = width;
-        canvas.height = height;
-        canvasDimensionsRef.current = { width, height };
-        layoutRef.current = null;
+      const screenTrack = screenStream.getVideoTracks()[0]
+      const { width = 0, height = 0 } = screenTrack.getSettings()
+      if (
+        width > 0 &&
+        height > 0 &&
+        (canvas.width !== width || canvas.height !== height)
+      ) {
+        canvas.width = width
+        canvas.height = height
+        canvasDimensionsRef.current = { width, height }
+        layoutRef.current = null
       }
-    };
+    }
 
     const drawToCanvas = () => {
       if (cancelled) {
-        return;
+        return
       }
 
       if (isPaused && !isStopping) {
-        frameId = requestAnimationFrame(drawToCanvas);
-        return;
+        frameId = requestAnimationFrame(drawToCanvas)
+        return
       }
 
       // Clock the composite off rAF, not the screen video's frame callback:
       // getDisplayMedia drops to a few fps when the screen is static, which
       // would undersample the webcam region and make the recorded camera
       // choppy. rAF gives a steady cadence; shouldDrawThisFrame caps it to 30.
-      const now = performance.now();
+      const now = performance.now()
       if (!shouldDrawThisFrame(lastDrawMs, CANVAS_CAPTURE_FPS)) {
-        frameId = requestAnimationFrame(drawToCanvas);
-        return;
+        frameId = requestAnimationFrame(drawToCanvas)
+        return
       }
-      lastDrawMs = now;
+      lastDrawMs = now
 
-      syncCanvasDimensions();
+      syncCanvasDimensions()
 
-      if (canvas.width === 0 || canvas.height === 0 || screenVideo.videoWidth === 0) {
-        frameId = requestAnimationFrame(drawToCanvas);
-        return;
+      if (
+        canvas.width === 0 ||
+        canvas.height === 0 ||
+        screenVideo.videoWidth === 0
+      ) {
+        frameId = requestAnimationFrame(drawToCanvas)
+        return
       }
 
-      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.clearRect(0, 0, canvas.width, canvas.height)
 
-      const webcamVideo = compositorWebcamRef.current;
-      const webcamReady = Boolean(webcamVideo && webcamVideo.videoWidth > 0 && webcamVideo.videoHeight > 0);
+      const webcamVideo = compositorWebcamRef.current
+      const webcamReady = Boolean(
+        webcamVideo && webcamVideo.videoWidth > 0 && webcamVideo.videoHeight > 0
+      )
 
       if (webcamReady && webcamVideo) {
-        const layoutKey = getOverlayLayoutKey();
+        const layoutKey = getOverlayLayoutKey()
         if (
           !layoutRef.current ||
           layoutRef.current.canvasWidth !== canvas.width ||
           layoutRef.current.canvasHeight !== canvas.height ||
           overlayLayoutKeyRef.current !== layoutKey
         ) {
-          layoutRef.current = computeCompositorLayout(canvas.width, canvas.height, webcamOverlay);
-          overlayLayoutKeyRef.current = layoutKey;
+          layoutRef.current = computeCompositorLayout(
+            canvas.width,
+            canvas.height,
+            webcamOverlay
+          )
+          overlayLayoutKeyRef.current = layoutKey
         }
 
         drawScreenWebcamFrame({
@@ -271,27 +348,27 @@ export default function useScreenWithCamRecorder({
           webcamVideo,
           layout: layoutRef.current,
           mirrorWebcam: recorderSettings.mirror,
-        });
+        })
       } else {
-        drawScreenOnlyFrame(context, screenVideo, canvas.width, canvas.height);
+        drawScreenOnlyFrame(context, screenVideo, canvas.width, canvas.height)
       }
 
       if (!hasPrimed) {
-        hasPrimed = true;
-        signalCanvasPrimed();
+        hasPrimed = true
+        signalCanvasPrimed()
       }
 
-      frameId = requestAnimationFrame(drawToCanvas);
-    };
+      frameId = requestAnimationFrame(drawToCanvas)
+    }
 
-    drawToCanvas();
+    drawToCanvas()
 
     return () => {
-      cancelled = true;
+      cancelled = true
       if (frameId !== null) {
-        cancelAnimationFrame(frameId);
+        cancelAnimationFrame(frameId)
       }
-    };
+    }
   }, [
     cameraStream,
     isEncoderActive,
@@ -302,7 +379,10 @@ export default function useScreenWithCamRecorder({
     screenStream,
     signalCanvasPrimed,
     webcamOverlay,
-  ]);
+    canvasRef,
+    getOverlayLayoutKey,
+    screenRef,
+  ])
 
   return {
     screenRef,
@@ -347,5 +427,5 @@ export default function useScreenWithCamRecorder({
     clearStream,
     clearMediaRecorder,
     reinitializeStreams,
-  };
+  }
 }

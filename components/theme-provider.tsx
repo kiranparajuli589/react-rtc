@@ -9,7 +9,10 @@ import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
   const originalConsoleError = console.error
   console.error = (...args: unknown[]) => {
-    if (typeof args[0] === "string" && args[0].includes("Encountered a script tag")) {
+    if (
+      typeof args[0] === "string" &&
+      args[0].includes("Encountered a script tag")
+    ) {
       return
     }
     originalConsoleError.apply(console, args)

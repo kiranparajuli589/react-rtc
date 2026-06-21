@@ -1,24 +1,29 @@
-export const calculateBarData = (frequencyData: Uint8Array, width: number, barWidth: number, gap: number): number[] => {
-  let units = width / (barWidth + gap);
-  let step = Math.floor(frequencyData.length / units);
+export const calculateBarData = (
+  frequencyData: Uint8Array,
+  width: number,
+  barWidth: number,
+  gap: number
+): number[] => {
+  let units = width / (barWidth + gap)
+  let step = Math.floor(frequencyData.length / units)
 
   if (units > frequencyData.length) {
-    units = frequencyData.length;
-    step = 1;
+    units = frequencyData.length
+    step = 1
   }
 
-  const data: number[] = [];
+  const data: number[] = []
 
   for (let i = 0; i < units; i++) {
-    let sum = 0;
+    let sum = 0
 
     for (let j = 0; j < step && i * step + j < frequencyData.length; j++) {
-      sum += frequencyData[i * step + j];
+      sum += frequencyData[i * step + j]
     }
-    data.push(sum / step);
+    data.push(sum / step)
   }
-  return data;
-};
+  return data
+}
 
 export const drawAudioVisualizer = (
   data: number[],
@@ -26,34 +31,34 @@ export const drawAudioVisualizer = (
   barWidth: number,
   gap: number,
   backgroundColor: string,
-  barColor: string,
+  barColor: string
 ): void => {
-  const amp = canvas.height / 2;
+  const amp = canvas.height / 2
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+  const ctx = canvas.getContext("2d")
+  if (!ctx) return
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
 
   if (backgroundColor !== "transparent") {
-    ctx.fillStyle = backgroundColor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = backgroundColor
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
   }
 
   data.forEach((dp, i) => {
-    ctx.fillStyle = barColor;
+    ctx.fillStyle = barColor
 
-    const x = i * (barWidth + gap);
-    const y = amp - dp / 2;
-    const w = barWidth;
-    const h = dp || 1;
+    const x = i * (barWidth + gap)
+    const y = amp - dp / 2
+    const w = barWidth
+    const h = dp || 1
 
-    ctx.beginPath();
+    ctx.beginPath()
     if (ctx.roundRect) {
-      ctx.roundRect(x, y, w, h, 50);
-      ctx.fill();
+      ctx.roundRect(x, y, w, h, 50)
+      ctx.fill()
     } else {
-      ctx.fillRect(x, y, w, h);
+      ctx.fillRect(x, y, w, h)
     }
-  });
-};
+  })
+}

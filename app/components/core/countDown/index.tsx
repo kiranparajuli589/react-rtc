@@ -1,32 +1,36 @@
-"use client";
+"use client"
 
-import { useEffect } from "react";
+import { useEffect } from "react"
 
-import { Button } from "@/components/ui/button";
-import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button"
+import { useTranslations } from "next-intl"
 
 type CountdownTimerProps = {
-  count: number;
-  onCancelStart: () => void;
-  className?: string;
-};
+  count: number
+  onCancelStart: () => void
+  className?: string
+}
 
 /** Inline overlay countdown — fits inside the preview card (not a portal dialog). */
-const CountdownTimer = ({ count, onCancelStart, className = "" }: CountdownTimerProps) => {
-  const t = useTranslations("countdown");
+const CountdownTimer = ({
+  count,
+  onCancelStart,
+  className = "",
+}: CountdownTimerProps) => {
+  const t = useTranslations("countdown")
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        onCancelStart();
+        onCancelStart()
       }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onCancelStart]);
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [onCancelStart])
 
   if (count <= 0) {
-    return null;
+    return null
   }
 
   return (
@@ -44,19 +48,28 @@ const CountdownTimer = ({ count, onCancelStart, className = "" }: CountdownTimer
 
         <div className="countdown__digits" aria-hidden="true">
           {[3, 2, 1].map((number) => (
-            <span key={number} className={`countdown__digit ${count === number ? "fade-in" : "fade-out"}`}>
+            <span
+              key={number}
+              className={`countdown__digit ${count === number ? "fade-in" : "fade-out"}`}
+            >
               {count === number ? number : ""}
             </span>
           ))}
         </div>
 
         <p className="countdown__message">{t("startsIn", { count })}</p>
-        <Button type="button" variant="outline" size="sm" className="countdown__cancel" onClick={onCancelStart}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="countdown__cancel"
+          onClick={onCancelStart}
+        >
           {t("cancel")}
         </Button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CountdownTimer;
+export default CountdownTimer

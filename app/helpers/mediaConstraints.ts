@@ -1,64 +1,72 @@
-import { BrowserDictionary, getBrowserName, isMobile } from "./browserHelper";
+import { BrowserDictionary, getBrowserName, isMobile } from "./browserHelper"
 
-import { getQualityPreset } from "@/constants/recording";
-import ConsoleLogger from "@/helpers/consoleLogger";
-import type { Quality } from "@/types/recording";
+import { getQualityPreset } from "@/constants/recording"
+import ConsoleLogger from "@/helpers/consoleLogger"
+import type { Quality } from "@/types/recording"
 
 /** Screen-capture options including non-standard, browser-specific fields. */
 type DisplayCaptureOptions = DisplayMediaStreamOptions & {
-  preferCurrentTab?: boolean;
-  selfBrowserSurface?: string;
-  systemAudio?: string;
-  surfaceSwitching?: string;
-  monitorTypeSurfaces?: string;
-  cursor?: string;
-};
+  preferCurrentTab?: boolean
+  selfBrowserSurface?: string
+  systemAudio?: string
+  surfaceSwitching?: string
+  monitorTypeSurfaces?: string
+  cursor?: string
+}
 
-export const getAudioConstraints = (deviceId: string | null, quality?: Quality | null): MediaStreamConstraints => {
+export const getAudioConstraints = (
+  deviceId: string | null,
+  quality?: Quality | null
+): MediaStreamConstraints => {
   if (deviceId === null) {
-    return { audio: true };
+    return { audio: true }
   }
 
-  const supports = navigator.mediaDevices.getSupportedConstraints();
-  ConsoleLogger.info("Supported constraints: ", supports);
+  const supports = navigator.mediaDevices.getSupportedConstraints()
+  ConsoleLogger.info("Supported constraints: ", supports)
 
-  const { sampleRate, channelCount } = getQualityPreset(quality).audio;
-  const audio: MediaTrackConstraints = { deviceId };
+  const { sampleRate, channelCount } = getQualityPreset(quality).audio
+  const audio: MediaTrackConstraints = { deviceId }
 
-  if (supports.channelCount) audio.channelCount = channelCount;
-  if (supports.sampleRate) audio.sampleRate = sampleRate;
+  if (supports.channelCount) audio.channelCount = channelCount
+  if (supports.sampleRate) audio.sampleRate = sampleRate
 
   if (isMobile()) {
-    return { audio, video: false };
+    return { audio, video: false }
   }
 
   if (deviceId === "PureAudio") {
-    delete audio.deviceId;
-    if (supports.autoGainControl) audio.autoGainControl = true;
-    if (supports.echoCancellation) audio.echoCancellation = true;
-    if (supports.noiseSuppression) audio.noiseSuppression = true;
-    return { audio, video: false };
+    delete audio.deviceId
+    if (supports.autoGainControl) audio.autoGainControl = true
+    if (supports.echoCancellation) audio.echoCancellation = true
+    if (supports.noiseSuppression) audio.noiseSuppression = true
+    return { audio, video: false }
   }
 
-  if (supports.autoGainControl) audio.autoGainControl = false;
+  if (supports.autoGainControl) audio.autoGainControl = false
   if (getBrowserName() !== BrowserDictionary.Safari) {
-    audio.echoCancellation = false;
+    audio.echoCancellation = false
   }
-  if (supports.noiseSuppression) audio.noiseSuppression = false;
+  if (supports.noiseSuppression) audio.noiseSuppression = false
 
-  return { audio, video: false };
-};
+  return { audio, video: false }
+}
 
 type VideoConstraintsArgs = {
-  deviceId: string | null;
-  aspectRatio?: number;
-  isBackCamera?: boolean;
-  quality?: Quality | null;
-};
+  deviceId: string | null
+  aspectRatio?: number
+  isBackCamera?: boolean
+  quality?: Quality | null
+}
 
-export const getVideoConstraints = ({ deviceId, aspectRatio, isBackCamera, quality }: VideoConstraintsArgs): MediaStreamConstraints => {
+export const getVideoConstraints = ({
+  deviceId,
+  aspectRatio,
+  isBackCamera,
+  quality,
+}: VideoConstraintsArgs): MediaStreamConstraints => {
   if (deviceId === null) {
-    return { video: true };
+    return { video: true }
   }
 
   const videoSettings: MediaTrackConstraints = {
@@ -66,13 +74,14 @@ export const getVideoConstraints = ({ deviceId, aspectRatio, isBackCamera, quali
     facingMode: isBackCamera ? "environment" : "user",
     aspectRatio: { ideal: aspectRatio },
     frameRate: { ideal: 60 },
-  };
-
-  if (isMobile()) {
-    return { video: videoSettings };
   }
 
-  const { width: recordingWidth, height: recordingHeight } = getQualityPreset(quality).camera;
+  if (isMobile()) {
+    return { video: videoSettings }
+  }
+
+  const { width: recordingWidth, height: recordingHeight } =
+    getQualityPreset(quality).camera
 
   return {
     video: {
@@ -83,11 +92,14 @@ export const getVideoConstraints = ({ deviceId, aspectRatio, isBackCamera, quali
       width: { ideal: recordingWidth, max: recordingWidth },
       height: { ideal: recordingHeight, max: recordingHeight },
     },
-  };
-};
+  }
+}
 
-export const getOverlayCameraConstraints = (deviceId: string | null, quality?: Quality | null): MediaStreamConstraints => {
-  const { width, height } = getQualityPreset(quality).overlayCamera;
+export const getOverlayCameraConstraints = (
+  deviceId: string | null,
+  quality?: Quality | null
+): MediaStreamConstraints => {
+  const { width, height } = getQualityPreset(quality).overlayCamera
 
   return {
     video: {
@@ -98,21 +110,24 @@ export const getOverlayCameraConstraints = (deviceId: string | null, quality?: Q
       frameRate: { ideal: 30, max: 30 },
     },
     audio: false,
-  };
-};
+  }
+}
 
-export const displayMediaOptions = (audioDeviceId: string | null, quality?: Quality | null): DisplayCaptureOptions => {
-  const audioConstraints = getAudioConstraints(audioDeviceId, quality);
-  const supports = navigator.mediaDevices.getSupportedConstraints();
+export const displayMediaOptions = (
+  audioDeviceId: string | null,
+  quality?: Quality | null
+): DisplayCaptureOptions => {
+  const audioConstraints = getAudioConstraints(audioDeviceId, quality)
+  const supports = navigator.mediaDevices.getSupportedConstraints()
 
-  const { maxWidth, maxHeight, frameRate } = getQualityPreset(quality).screen;
+  const { maxWidth, maxHeight, frameRate } = getQualityPreset(quality).screen
   const video: MediaTrackConstraints & { displaySurface?: string } = {
     frameRate: { ideal: frameRate, max: frameRate },
-  };
+  }
   // Only cap resolution when the preset asks for it — high quality keeps native size.
-  if (maxWidth) video.width = { max: maxWidth };
-  if (maxHeight) video.height = { max: maxHeight };
-  if (supports.displaySurface) video.displaySurface = "browser";
+  if (maxWidth) video.width = { max: maxWidth }
+  if (maxHeight) video.height = { max: maxHeight }
+  if (supports.displaySurface) video.displaySurface = "browser"
 
   return {
     video,
@@ -123,5 +138,5 @@ export const displayMediaOptions = (audioDeviceId: string | null, quality?: Qual
     surfaceSwitching: "include",
     monitorTypeSurfaces: "include",
     cursor: "always",
-  };
-};
+  }
+}

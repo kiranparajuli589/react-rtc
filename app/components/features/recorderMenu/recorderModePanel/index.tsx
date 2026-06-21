@@ -1,18 +1,36 @@
-import dynamic from "next/dynamic";
+import dynamic from "next/dynamic"
 
-import { RECORDING_TYPE } from "@/constants/recordingTypes";
-import type { RecorderModePanelProps } from "@/types/recorder";
+import { RECORDING_TYPE } from "@/constants/recordingTypes"
+import type { RecorderModePanelProps } from "@/types/recorder"
 
-import RecorderModeSkeleton from "./RecorderModeSkeleton";
+import RecorderModeSkeleton from "./RecorderModeSkeleton"
 
-const AudioRecorder = dynamic(() => import("../audioRecorder"), { loading: () => <RecorderModeSkeleton variant="audio" /> });
-const ScreenRecorder = dynamic(() => import("../screenRecorder"), { loading: () => <RecorderModeSkeleton /> });
-const VideoRecorder = dynamic(() => import("../videoRecorder"), { loading: () => <RecorderModeSkeleton /> });
-const ScreenWithWebcamRecorder = dynamic(() => import("../screenWithWebcamRecorder"), { loading: () => <RecorderModeSkeleton /> });
+const AudioRecorder = dynamic(() => import("../audioRecorder"), {
+  loading: () => <RecorderModeSkeleton variant="audio" />,
+})
+const ScreenRecorder = dynamic(() => import("../screenRecorder"), {
+  loading: () => <RecorderModeSkeleton />,
+})
+const VideoRecorder = dynamic(() => import("../videoRecorder"), {
+  loading: () => <RecorderModeSkeleton />,
+})
+const ScreenWithWebcamRecorder = dynamic(
+  () => import("../screenWithWebcamRecorder"),
+  { loading: () => <RecorderModeSkeleton /> }
+)
 
 /** Routes to the active recording mode UI (camera, audio, screen, or screen + camera). */
 export default function RecorderModePanel(props: RecorderModePanelProps) {
-  const { type, muteAudio, selectedAudioDevice, selectedVideoDevice, setSelectedRecordingOption, recorderSettings, isMicDisabled, devicesList } = props;
+  const {
+    type,
+    muteAudio,
+    selectedAudioDevice,
+    selectedVideoDevice,
+    setSelectedRecordingOption,
+    recorderSettings,
+    isMicDisabled,
+    devicesList,
+  } = props
 
   return (
     <div className="recorder">
@@ -54,5 +72,5 @@ export default function RecorderModePanel(props: RecorderModePanelProps) {
         />
       )}
     </div>
-  );
+  )
 }

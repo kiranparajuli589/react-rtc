@@ -1,18 +1,18 @@
-"use client";
+"use client"
 
-import type { ReactNode } from "react";
+import type { ReactNode } from "react"
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 
-type PreviewStageVariant = "video" | "audio";
+type PreviewStageVariant = "video" | "audio"
 
 type RecorderPreviewStageProps = {
-  variant?: PreviewStageVariant;
-  isStreamReady?: boolean;
-  countdownOverlay?: ReactNode;
-  className?: string;
-  children: ReactNode;
-};
+  variant?: PreviewStageVariant
+  isStreamReady?: boolean
+  countdownOverlay?: ReactNode
+  className?: string
+  children: ReactNode
+}
 
 /** Fixed-size preview frame — reserves space before the media stream is ready (zero layout shift). */
 export default function RecorderPreviewStage({
@@ -27,12 +27,17 @@ export default function RecorderPreviewStage({
       className={cn(
         "recorder__preview_stage",
         variant === "audio" && "recorder__preview_stage--audio",
-        className,
+        className
       )}
     >
-      {!isStreamReady && !countdownOverlay && <div className="recorder__preview_stage__placeholder" aria-hidden="true" />}
+      {!isStreamReady && !countdownOverlay && (
+        <div
+          className="recorder__preview_stage__placeholder"
+          aria-hidden="true"
+        />
+      )}
       <div className="recorder__preview_stage__content">{children}</div>
       {countdownOverlay}
     </div>
-  );
+  )
 }

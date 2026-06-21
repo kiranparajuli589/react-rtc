@@ -1,35 +1,55 @@
-"use client";
+"use client"
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react"
 
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { useTranslations } from "next-intl"
+import { toast } from "sonner"
 
-import RecorderShell from "../recorderShell";
-import CreateAnnouncementRow from "../createAnnouncementRow";
-import RecorderToolbar from "../recorderToolbar";
+import RecorderShell from "../recorderShell"
+import CreateAnnouncementRow from "../createAnnouncementRow"
+import RecorderToolbar from "../recorderToolbar"
 
-import { RECORDING_TYPE } from "@/constants/recordingTypes";
-import { useRecording } from "@/contexts/recordingContext";
-import AudioPlayer from "@/core/mediaPlayer/AudioPlayer";
-import { requestNotificationPermission } from "@/hooks/desktopNotification";
-import useAudioVisualizer from "@/hooks/useAudioVisualizer";
-import useMediaRecorder from "@/hooks/useMediaRecorder";
-import useStream from "@/hooks/useStream";
-import type { AudioRecorderProps } from "@/types/recorder";
+import { RECORDING_TYPE } from "@/constants/recordingTypes"
+import { useRecording } from "@/contexts/recordingContext"
+import AudioPlayer from "@/core/mediaPlayer/AudioPlayer"
+import { requestNotificationPermission } from "@/hooks/desktopNotification"
+import useAudioVisualizer from "@/hooks/useAudioVisualizer"
+import useLatestRef from "@/hooks/useLatestRef"
+import useMediaRecorder from "@/hooks/useMediaRecorder"
+import useOnUnmount from "@/hooks/useOnUnmount"
+import usePreviewReady from "@/hooks/usePreviewReady"
+import useStream from "@/hooks/useStream"
+import type { AudioRecorderProps } from "@/types/recorder"
 
-export default function AudioRecorder({ selectedAudioDevice, setSelectedRecordingOption, recorderSettings }: AudioRecorderProps) {
-  const tPermissions = useTranslations("permissions");
-  const tTitles = useTranslations("recorderTitles");
-  const { recordingData } = useRecording();
+export default function AudioRecorder({
+  selectedAudioDevice,
+  setSelectedRecordingOption,
+  recorderSettings,
+}: AudioRecorderProps) {
+  const tPermissions = useTranslations("permissions")
+  const tTitles = useTranslations("recorderTitles")
+  const { recordingData } = useRecording()
 
-  const { isPermissionDenied: streamPermissionDenied, initAudioStream, clearStream, micStream, audioRef } = useStream();
+  const {
+    isPermissionDenied: streamPermissionDenied,
+    initAudioStream,
+    clearStream,
+    micStream,
+    audioRef,
+  } = useStream()
 
-  const reinitializeStreams = () => {
-    setPlayerReady(false);
-    clearStream();
-    initAudioStream(selectedAudioDevice, recorderSettings.quality);
-  };
+  const resetPlayerReadyRef = useRef(() => {})
+
+  const reinitializeStreams = useCallback(() => {
+    resetPlayerReadyRef.current()
+    clearStream()
+    initAudioStream(selectedAudioDevice, recorderSettings.quality)
+  }, [
+    clearStream,
+    initAudioStream,
+    selectedAudioDevice,
+    recorderSettings.quality,
+  ])
 
   const {
     setMediaStream,
@@ -60,69 +80,81 @@ export default function AudioRecorder({ selectedAudioDevice, setSelectedRecordin
     clearStream,
     reinitializeStreams,
     quality: recorderSettings.quality,
-  });
+  })
+
+  const { playerReady, setPlayerReady } = usePreviewReady(recordBlob)
+
+  useLayoutEffect(() => {
+    resetPlayerReadyRef.current = () => setPlayerReady(false)
+  })
 
   useEffect(() => {
     if (recordingData) {
-      setIsStopped(true);
-      setRecordBlob(recordingData.blob.slice(0, recordingData.blob.size, recordingData.mimeType));
-      setRecordTimer(recordingData.timer);
+      setIsStopped(true)
+      setRecordBlob(
+        recordingData.blob.slice(
+          0,
+          recordingData.blob.size,
+          recordingData.mimeType
+        )
+      )
+      setRecordTimer(recordingData.timer)
     }
-  }, [recordingData, setIsStopped, setRecordBlob, setRecordTimer]);
+  }, [recordingData, setIsStopped, setRecordBlob, setRecordTimer])
 
   useEffect(() => {
     if (streamPermissionDenied) {
-      setSelectedRecordingOption(null);
-      toast.error(tPermissions("microphoneDenied"));
+      setSelectedRecordingOption(null)
+      toast.error(tPermissions("microphoneDenied"))
     }
-  }, [streamPermissionDenied, setSelectedRecordingOption, tPermissions]);
+  }, [streamPermissionDenied, setSelectedRecordingOption, tPermissions])
 
   useEffect(() => {
     if (!recordingData?.blob && selectedAudioDevice && !isStopped) {
-      initAudioStream(selectedAudioDevice, recorderSettings.quality);
+      initAudioStream(selectedAudioDevice, recorderSettings.quality)
     }
-  }, [selectedAudioDevice, isStopped, recordingData?.blob, initAudioStream, recorderSettings.quality]);
+  }, [
+    selectedAudioDevice,
+    isStopped,
+    recordingData?.blob,
+    initAudioStream,
+    recorderSettings.quality,
+  ])
 
   useEffect(() => {
     if (micStream) {
-      setMediaStream(micStream);
+      setMediaStream(micStream)
     }
-  }, [micStream, setMediaStream]);
+  }, [micStream, setMediaStream])
 
-  const clearStreamRef = useRef(clearStream);
-  const clearMediaRecorderRef = useRef(clearMediaRecorder);
-  clearStreamRef.current = clearStream;
-  clearMediaRecorderRef.current = clearMediaRecorder;
+  const clearStreamRef = useLatestRef(clearStream)
+  const clearMediaRecorderRef = useLatestRef(clearMediaRecorder)
 
   useEffect(() => {
-    requestNotificationPermission();
-    return () => {
-      clearStreamRef.current();
-      clearMediaRecorderRef.current();
-    };
-  }, []);
+    requestNotificationPermission()
+  }, [])
+
+  useOnUnmount(() => {
+    clearStreamRef.current()
+    clearMediaRecorderRef.current()
+  })
 
   useEffect(() => {
     if (isRecording) {
-      document.title = tTitles("audioRecording", { time: formattedTimer });
+      document.title = tTitles("audioRecording", { time: formattedTimer })
     } else {
-      document.title = tTitles("audio");
+      document.title = tTitles("audio")
     }
-  }, [formattedTimer, isRecording, tTitles]);
+  }, [formattedTimer, isRecording, tTitles])
 
-  const { visualizerCanvasRef, initAudioContext, visualizerConfig } = useAudioVisualizer();
+  const { visualizerCanvasRef, initAudioContext, visualizerConfig } =
+    useAudioVisualizer()
 
   useEffect(() => {
     if (micStream) {
-      initAudioContext(micStream);
+      initAudioContext(micStream)
     }
-  }, [micStream, initAudioContext]);
-
-  const [playerReady, setPlayerReady] = useState(false);
-
-  useEffect(() => {
-    setPlayerReady(false);
-  }, [recordBlob]);
+  }, [micStream, initAudioContext])
 
   return (
     <RecorderShell
@@ -151,7 +183,6 @@ export default function AudioRecorder({ selectedAudioDevice, setSelectedRecordin
       isStopped={isStopped}
       recordBlob={recordBlob}
       isRecording={isRecording}
-      isPlayerReady={playerReady}
       isStreamReady={Boolean(micStream)}
       previewVariant="audio"
       previewContent={
@@ -165,7 +196,7 @@ export default function AudioRecorder({ selectedAudioDevice, setSelectedRecordin
             queryType={RECORDING_TYPE.AUDIO}
           />
           <AudioPlayer
-            className="max-w-[700px] mx-auto"
+            className="mx-auto max-w-[700px]"
             src={recordBlob}
             duration={recordTimer}
             onComponentReady={() => setPlayerReady(true)}
@@ -177,7 +208,11 @@ export default function AudioRecorder({ selectedAudioDevice, setSelectedRecordin
           <canvas
             ref={visualizerCanvasRef}
             className="recorder__audio_visualizer"
-            width={typeof window !== "undefined" ? Math.min(window.innerWidth * 0.8, 900) : 900}
+            width={
+              typeof window !== "undefined"
+                ? Math.min(window.innerWidth * 0.8, 900)
+                : 900
+            }
             height={400}
             style={{ backgroundColor: visualizerConfig.bgColor }}
             aria-hidden="true"
@@ -187,5 +222,5 @@ export default function AudioRecorder({ selectedAudioDevice, setSelectedRecordin
       }
       skeletonHeight="100%"
     />
-  );
+  )
 }

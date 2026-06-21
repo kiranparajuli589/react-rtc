@@ -1,20 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react"
 
-import { requestNotificationPermission } from "../desktopNotification";
-import useMediaRecorder from "../useMediaRecorder";
-import useStream from "../useStream";
+import { requestNotificationPermission } from "../desktopNotification"
+import useMediaRecorder from "../useMediaRecorder"
+import useStream from "../useStream"
 
-import type { RecordingType } from "@/constants/recordingTypes";
-import type { RecorderSettings } from "@/types/recording";
+import type { RecordingType } from "@/constants/recordingTypes"
+import useOnUnmount from "@/hooks/useOnUnmount"
+import usePreviewReady from "@/hooks/usePreviewReady"
+import type { RecorderSettings } from "@/types/recording"
 
 type UseRecorderModeBaseArgs = {
-  recordingType: RecordingType;
-  recorderSettings: RecorderSettings;
-  clearStream: () => void;
-  reinitializeStreams: () => void;
-  isMicDisabled: boolean;
-  canvasCaptureFrameRate?: number;
-};
+  recordingType: RecordingType
+  recorderSettings: RecorderSettings
+  clearStream: () => void
+  reinitializeStreams: () => void
+  isMicDisabled: boolean
+  canvasCaptureFrameRate?: number
+}
 
 /** Shared wiring for mode-specific recorder hooks. */
 export default function useRecorderModeBase({
@@ -25,8 +27,6 @@ export default function useRecorderModeBase({
   isMicDisabled,
   canvasCaptureFrameRate,
 }: UseRecorderModeBaseArgs) {
-  const [playerReady, setPlayerReady] = useState(false);
-
   const mediaRecorder = useMediaRecorder({
     type: recordingType,
     withCountdown: recorderSettings.countDown,
@@ -34,33 +34,32 @@ export default function useRecorderModeBase({
     reinitializeStreams,
     isMicDisabled,
     canvasCaptureFrameRate,
-  });
+  })
+
+  const { playerReady, setPlayerReady } = usePreviewReady(mediaRecorder.recordBlob)
 
   useEffect(() => {
-    requestNotificationPermission();
-    return () => {
-      clearStream();
-      mediaRecorder.clearMediaRecorder();
-    };
-  }, []);
+    requestNotificationPermission()
+  }, [])
 
-  useEffect(() => {
-    setPlayerReady(false);
-  }, [mediaRecorder.recordBlob]);
+  useOnUnmount(() => {
+    clearStream()
+    mediaRecorder.clearMediaRecorder()
+  })
 
   return {
     playerReady,
     setPlayerReady,
     ...mediaRecorder,
-  };
+  }
 }
 
 export function useStreamWithCleanup() {
-  const stream = useStream();
+  const stream = useStream()
 
   const clearStreamAndRefs = () => {
-    stream.clearStream();
-  };
+    stream.clearStream()
+  }
 
-  return { ...stream, clearStream: clearStreamAndRefs };
+  return { ...stream, clearStream: clearStreamAndRefs }
 }

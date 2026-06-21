@@ -1,21 +1,23 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react"
 
-import { requestNotificationPermission } from "../desktopNotification";
-import useMediaRecorder from "../useMediaRecorder";
-import useStream from "../useStream";
+import { requestNotificationPermission } from "../desktopNotification"
+import useMediaRecorder from "../useMediaRecorder"
+import useStream from "../useStream"
 
-import { RECORDING_TYPE } from "@/constants/recordingTypes";
-import ConsoleLogger from "@/helpers/consoleLogger";
-import useScreenTrackMonitor from "@/hooks/recorder/useScreenTrackMonitor";
-import type { RecorderSettings } from "@/types/recording";
+import { RECORDING_TYPE } from "@/constants/recordingTypes"
+import ConsoleLogger from "@/helpers/consoleLogger"
+import useOnUnmount from "@/hooks/useOnUnmount"
+import usePreviewReady from "@/hooks/usePreviewReady"
+import useScreenTrackMonitor from "@/hooks/recorder/useScreenTrackMonitor"
+import type { RecorderSettings } from "@/types/recording"
 
 type UseScreenOnlyRecorderArgs = {
-  selectedAudioDevice: string | null;
-  muteAudio: boolean;
-  isMicDisabled: boolean;
-  recorderSettings: RecorderSettings;
-  enabled?: boolean;
-};
+  selectedAudioDevice: string | null
+  muteAudio: boolean
+  isMicDisabled: boolean
+  recorderSettings: RecorderSettings
+  enabled?: boolean
+}
 
 export default function useScreenOnlyRecorder({
   selectedAudioDevice,
@@ -24,17 +26,38 @@ export default function useScreenOnlyRecorder({
   recorderSettings,
   enabled = true,
 }: UseScreenOnlyRecorderArgs) {
-  const { isPermissionDenied: streamPermissionDenied, initAudioStream, initScreenStream, clearStream, micStream, screenStream, screenRef } = useStream();
+  const {
+    isPermissionDenied: streamPermissionDenied,
+    initAudioStream,
+    initScreenStream,
+    clearStream,
+    micStream,
+    screenStream,
+    screenRef,
+  } = useStream()
 
-  const reinitializeStreams = () => {
-    ConsoleLogger.info("Reinitializing streams");
-    setPlayerReady(false);
-    clearStream();
+  const resetPlayerReadyRef = useRef(() => {})
+
+  const reinitializeStreams = useCallback(() => {
+    ConsoleLogger.info("Reinitializing streams")
+    resetPlayerReadyRef.current()
+    clearStream()
     if (!muteAudio && !isMicDisabled) {
-      initAudioStream(selectedAudioDevice, recorderSettings.quality);
+      initAudioStream(selectedAudioDevice, recorderSettings.quality)
     }
-    initScreenStream(selectedAudioDevice, { force: true, quality: recorderSettings.quality });
-  };
+    initScreenStream(selectedAudioDevice, {
+      force: true,
+      quality: recorderSettings.quality,
+    })
+  }, [
+    clearStream,
+    initAudioStream,
+    initScreenStream,
+    isMicDisabled,
+    muteAudio,
+    recorderSettings.quality,
+    selectedAudioDevice,
+  ])
 
   const useMediaRec = useMediaRecorder({
     type: RECORDING_TYPE.SCREEN,
@@ -43,7 +66,7 @@ export default function useScreenOnlyRecorder({
     reinitializeStreams,
     isMicDisabled: isMicDisabled || muteAudio,
     quality: recorderSettings.quality,
-  });
+  })
 
   const {
     mediaStreamRef,
@@ -69,67 +92,82 @@ export default function useScreenOnlyRecorder({
     setRecordTimer,
     setRecordBlob,
     onCancelRecordingInit,
-  } = useMediaRec;
+  } = useMediaRec
+
+  const { playerReady, setPlayerReady } = usePreviewReady(recordBlob)
+
+  useLayoutEffect(() => {
+    resetPlayerReadyRef.current = () => setPlayerReady(false)
+  })
 
   useEffect(() => {
     if (!enabled) {
-      clearStream();
-      clearMediaRecorder();
-      return;
+      clearStream()
+      clearMediaRecorder()
+      return
     }
 
-    initScreenStream(selectedAudioDevice, { quality: recorderSettings.quality });
-  }, [enabled]);
+    initScreenStream(selectedAudioDevice, { quality: recorderSettings.quality })
+  }, [
+    enabled,
+    clearStream,
+    clearMediaRecorder,
+    initScreenStream,
+    selectedAudioDevice,
+    recorderSettings.quality,
+  ])
 
   useEffect(() => {
     if (!enabled || muteAudio || isMicDisabled) {
-      return;
+      return
     }
 
     if (selectedAudioDevice) {
-      initAudioStream(selectedAudioDevice, recorderSettings.quality);
+      initAudioStream(selectedAudioDevice, recorderSettings.quality)
     } else {
-      initAudioStream(null, recorderSettings.quality);
+      initAudioStream(null, recorderSettings.quality)
     }
-  }, [selectedAudioDevice, muteAudio, isMicDisabled, enabled]);
+  }, [
+    selectedAudioDevice,
+    muteAudio,
+    isMicDisabled,
+    enabled,
+    initAudioStream,
+    recorderSettings.quality,
+  ])
 
   useEffect(() => {
     if (!screenStream) {
-      setMediaStream(null);
-      mediaStreamRef.current = null;
-      return;
+      setMediaStream(null)
+      mediaStreamRef.current = null
+      return
     }
 
     if (screenStream) {
-      const newStream = new MediaStream();
-      [micStream, screenStream].forEach((stream) => {
-        if (!stream) return;
-        stream.getTracks().forEach((track) => newStream.addTrack(track));
-      });
-      setMediaStream(newStream);
-      mediaStreamRef.current = newStream;
+      const newStream = new MediaStream()
+      ;[micStream, screenStream].forEach((stream) => {
+        if (!stream) return
+        stream.getTracks().forEach((track) => newStream.addTrack(track))
+      })
+      setMediaStream(newStream)
+      mediaStreamRef.current = newStream
     }
-  }, [screenStream, micStream]);
+  }, [screenStream, micStream, mediaStreamRef, setMediaStream])
 
   useEffect(() => {
-    requestNotificationPermission();
-    return () => {
-      clearStream();
-      clearMediaRecorder();
-    };
-  }, []);
+    requestNotificationPermission()
+  }, [])
 
-  const [playerReady, setPlayerReady] = useState(false);
-
-  useEffect(() => {
-    setPlayerReady(false);
-  }, [recordBlob]);
+  useOnUnmount(() => {
+    clearStream()
+    clearMediaRecorder()
+  })
 
   useScreenTrackMonitor({
     screenStream,
     isRecording,
     onScreenShareEnded: recorderStop,
-  });
+  })
 
   return {
     screenRef,
@@ -160,5 +198,5 @@ export default function useScreenOnlyRecorder({
     setPlayerReady,
     reinitializeStreams,
     mediaStream,
-  };
+  }
 }

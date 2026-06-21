@@ -1,11 +1,15 @@
 export function isMobile(): boolean {
-  const userAgent = typeof window !== "undefined" ? navigator.userAgent : "";
-  const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-  return mobileRegex.test(userAgent);
+  const userAgent = typeof window !== "undefined" ? navigator.userAgent : ""
+  const mobileRegex =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+  return mobileRegex.test(userAgent)
 }
 
 export function isIOS(): boolean {
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  )
 }
 
 export const BrowserDictionary = {
@@ -17,24 +21,31 @@ export const BrowserDictionary = {
   Firefox: "Firefox",
   MSIE: "IE",
   Unknown: "Unknown",
-} as const;
+} as const
 
-export type BrowserName = (typeof BrowserDictionary)[keyof typeof BrowserDictionary];
+export type BrowserName =
+  (typeof BrowserDictionary)[keyof typeof BrowserDictionary]
 
 export function getBrowserName(): BrowserName {
-  if ((navigator.userAgent.indexOf("Opera") || navigator.userAgent.indexOf("OPR")) !== -1) {
-    return BrowserDictionary.Opera;
+  if (
+    (navigator.userAgent.indexOf("Opera") ||
+      navigator.userAgent.indexOf("OPR")) !== -1
+  ) {
+    return BrowserDictionary.Opera
   } else if (navigator.userAgent.indexOf("Edg") !== -1) {
-    return BrowserDictionary.Edge;
+    return BrowserDictionary.Edge
   } else if (navigator.userAgent.indexOf("Chrome") !== -1) {
-    return BrowserDictionary.Chrome;
+    return BrowserDictionary.Chrome
   } else if (navigator.userAgent.indexOf("Safari") !== -1) {
-    return BrowserDictionary.Safari;
+    return BrowserDictionary.Safari
   } else if (navigator.userAgent.indexOf("Firefox") !== -1) {
-    return BrowserDictionary.Firefox;
-  } else if (navigator.userAgent.indexOf("MSIE") !== -1 || "documentMode" in document) {
-    return BrowserDictionary.MSIE;
+    return BrowserDictionary.Firefox
+  } else if (
+    navigator.userAgent.indexOf("MSIE") !== -1 ||
+    "documentMode" in document
+  ) {
+    return BrowserDictionary.MSIE
   } else {
-    return BrowserDictionary.Unknown;
+    return BrowserDictionary.Unknown
   }
 }

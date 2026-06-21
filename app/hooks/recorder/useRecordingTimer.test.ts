@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest"
+import { renderHook, act } from "@testing-library/react"
 
 vi.mock("@/config", () => ({
   default: {
@@ -7,28 +7,28 @@ vi.mock("@/config", () => ({
     DEBUG: false,
     BASE_URL: "",
   },
-}));
+}))
 
-import useRecordingTimer from "@/hooks/recorder/useRecordingTimer";
+import useRecordingTimer from "@/hooks/recorder/useRecordingTimer"
 
 describe("useRecordingTimer", () => {
   it("calls onLimitReached when timer hits limit", () => {
-    vi.useFakeTimers();
-    const onLimitReached = vi.fn();
+    vi.useFakeTimers()
+    const onLimitReached = vi.fn()
 
     renderHook(() =>
       useRecordingTimer({
         isRecording: true,
         isPaused: false,
         onLimitReached,
-      }),
-    );
+      })
+    )
 
     act(() => {
-      vi.advanceTimersByTime(4000);
-    });
+      vi.advanceTimersByTime(4000)
+    })
 
-    expect(onLimitReached).toHaveBeenCalled();
-    vi.useRealTimers();
-  });
-});
+    expect(onLimitReached).toHaveBeenCalled()
+    vi.useRealTimers()
+  })
+})

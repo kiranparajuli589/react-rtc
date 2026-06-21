@@ -1,17 +1,17 @@
-import type { CSSProperties, MouseEventHandler } from "react";
-import type { LucideIcon } from "lucide-react";
+import type { CSSProperties, MouseEventHandler } from "react"
+import type { LucideIcon } from "lucide-react"
 
 type IconProps = {
-  icon: LucideIcon;
-  size?: number;
-  color?: string;
-  className?: string;
-  strokeWidth?: number;
-  fill?: string;
-  title?: string;
-  onClick?: MouseEventHandler<SVGSVGElement>;
-  style?: CSSProperties;
-};
+  icon: LucideIcon
+  size?: number
+  color?: string
+  className?: string
+  strokeWidth?: number
+  fill?: string
+  title?: string
+  onClick?: MouseEventHandler<SVGSVGElement>
+  style?: CSSProperties
+}
 
 export default function Icon({
   icon: IconComponent,
@@ -28,7 +28,7 @@ export default function Icon({
     <IconComponent
       size={size}
       color={color}
-      className={`select-none shrink-0 ${className}`}
+      className={`shrink-0 select-none ${className}`}
       strokeWidth={strokeWidth}
       fill={fill}
       aria-hidden={title ? undefined : true}
@@ -36,5 +36,5 @@ export default function Icon({
       onClick={onClick}
       style={style}
     />
-  );
+  )
 }

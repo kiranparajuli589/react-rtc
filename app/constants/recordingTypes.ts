@@ -3,6 +3,6 @@ export const RECORDING_TYPE = {
   AUDIO: "AUDIO",
   SCREEN: "SCREEN",
   SCREEN_VIDEO: "SCREENVIDEO",
-} as const;
+} as const
 
-export type RecordingType = (typeof RECORDING_TYPE)[keyof typeof RECORDING_TYPE];
+export type RecordingType = (typeof RECORDING_TYPE)[keyof typeof RECORDING_TYPE]

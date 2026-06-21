@@ -1,17 +1,17 @@
-import { setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server"
 
-import { RecordingProvider } from "@/contexts/recordingContext";
-import { Toaster } from "@/components/ui/sonner";
-import RecorderErrorBoundary from "@/core/RecorderErrorBoundary";
-import RecorderMenu from "@/features/recorderMenu";
+import { RecordingProvider } from "@/contexts/recordingContext"
+import { Toaster } from "@/components/ui/sonner"
+import RecorderErrorBoundary from "@/core/RecorderErrorBoundary"
+import RecorderMenu from "@/features/recorderMenu"
 
 type Props = {
-  params: Promise<{ locale: string }>;
-};
+  params: Promise<{ locale: string }>
+}
 
 export default async function Page({ params }: Props) {
-  const { locale } = await params;
-  setRequestLocale(locale);
+  const { locale } = await params
+  setRequestLocale(locale)
 
   return (
     <RecordingProvider>
@@ -20,5 +20,5 @@ export default async function Page({ params }: Props) {
       </RecorderErrorBoundary>
       <Toaster />
     </RecordingProvider>
-  );
+  )
 }

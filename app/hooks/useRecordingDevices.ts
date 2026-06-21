@@ -1,24 +1,27 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react"
 
-import { toast } from "sonner";
-import { useTranslations } from "next-intl";
+import { toast } from "sonner"
+import { useTranslations } from "next-intl"
 
-import { requestNotificationPermission } from "./desktopNotification";
+import { requestNotificationPermission } from "./desktopNotification"
 
-import ConsoleLogger from "@/helpers/consoleLogger";
-import type { RecordingDevice } from "@/types/recording";
+import ConsoleLogger from "@/helpers/consoleLogger"
+import useLatestRef from "@/hooks/useLatestRef"
+import type { RecordingDevice } from "@/types/recording"
 
 type UseRecordingDevicesArgs = {
-  selectedAudioDevice: string | null;
-  setSelectedAudioDevice?: (deviceId: string) => void;
-  selectedVideoDevice: string | null;
-  setSelectedVideoDevice?: (deviceId: string) => void;
-  config?: MediaStreamConstraints;
-  pemDeniedMessage?: string;
-};
+  selectedAudioDevice: string | null
+  setSelectedAudioDevice?: (deviceId: string) => void
+  selectedVideoDevice: string | null
+  setSelectedVideoDevice?: (deviceId: string) => void
+  config?: MediaStreamConstraints
+  pemDeniedMessage?: string
+}
 
 const isEnumerateSupported = (): boolean =>
-  typeof navigator !== "undefined" && !!navigator.mediaDevices && typeof navigator.mediaDevices.enumerateDevices === "function";
+  typeof navigator !== "undefined" &&
+  !!navigator.mediaDevices &&
+  typeof navigator.mediaDevices.enumerateDevices === "function"
 
 export default function useRecordingDevices({
   selectedAudioDevice,
@@ -28,85 +31,100 @@ export default function useRecordingDevices({
   config = { audio: true, video: true },
   pemDeniedMessage = "Permission denied to access the microphone/camera.",
 }: UseRecordingDevicesArgs) {
-  const tDevices = useTranslations("devices");
-  const enumerateSupported = isEnumerateSupported();
-  const [audioDevices, setAudioDevices] = useState<RecordingDevice[]>([]);
-  const [videoDevices, setVideoDevices] = useState<RecordingDevice[]>([]);
-  const [isMicPermissionDenied, setIsMicPermissionDenied] = useState(false);
-  const [isCameraPermissionDenied, setIsCameraPermissionDenied] = useState(false);
-  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
-  const [isEnumerating, setIsEnumerating] = useState(false);
+  const tDevices = useTranslations("devices")
+  const enumerateSupported = isEnumerateSupported()
+  const [audioDevices, setAudioDevices] = useState<RecordingDevice[]>([])
+  const [videoDevices, setVideoDevices] = useState<RecordingDevice[]>([])
+  const [isMicPermissionDenied, setIsMicPermissionDenied] = useState(false)
+  const [isCameraPermissionDenied, setIsCameraPermissionDenied] =
+    useState(false)
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false)
+  const [isEnumerating, setIsEnumerating] = useState(false)
 
-  const enumerateDevices = async () => {
-    setIsEnumerating(true);
-    const devices = await navigator.mediaDevices.enumerateDevices();
+  const enumerateDevices = useCallback(async () => {
+    setIsEnumerating(true)
+    const devices = await navigator.mediaDevices.enumerateDevices()
     const audioInputs: RecordingDevice[] = [
       ...devices.filter((device) => device.kind === "audioinput"),
       { deviceId: "PureAudio", label: tDevices("pureAudio") },
-    ];
-    const videoInputs = devices.filter((device) => device.kind === "videoinput");
+    ]
+    const videoInputs = devices.filter((device) => device.kind === "videoinput")
 
-    setAudioDevices(audioInputs);
-    setVideoDevices(videoInputs);
+    setAudioDevices(audioInputs)
+    setVideoDevices(videoInputs)
 
     const pickDevice = (
       devices: RecordingDevice[],
       current: string | null,
-      setter: ((deviceId: string) => void) | undefined,
+      setter: ((deviceId: string) => void) | undefined
     ) => {
-      if (devices.length === 0 || !setter) return;
-      const isValid = current !== null && devices.some((d) => d.deviceId === current);
-      if (!isValid) setter(devices[0].deviceId);
-    };
+      if (devices.length === 0 || !setter) return
+      const isValid =
+        current !== null && devices.some((d) => d.deviceId === current)
+      if (!isValid) setter(devices[0].deviceId)
+    }
 
-    pickDevice(audioInputs, selectedAudioDevice, setSelectedAudioDevice);
-    pickDevice(videoInputs, selectedVideoDevice, setSelectedVideoDevice);
-    setIsEnumerating(false);
-    setIsRequestingPermission(false);
-  };
+    pickDevice(audioInputs, selectedAudioDevice, setSelectedAudioDevice)
+    pickDevice(videoInputs, selectedVideoDevice, setSelectedVideoDevice)
+    setIsEnumerating(false)
+    setIsRequestingPermission(false)
+  }, [
+    selectedAudioDevice,
+    selectedVideoDevice,
+    setSelectedAudioDevice,
+    setSelectedVideoDevice,
+    tDevices,
+  ])
 
-  const handleEnumerationUsingMediaStream = async () => {
-    ConsoleLogger.debug("Requesting permission to access the camera/microphone.");
-    setIsRequestingPermission(true);
+  const handleEnumerationUsingMediaStream = useCallback(async () => {
+    ConsoleLogger.debug(
+      "Requesting permission to access the camera/microphone."
+    )
+    setIsRequestingPermission(true)
     await navigator.mediaDevices
       .getUserMedia(config)
       .then((stream) => {
-        ConsoleLogger.info("Permission granted to access the camera/microphone.");
-        setIsMicPermissionDenied(false);
-        setIsCameraPermissionDenied(false);
-        stream.getTracks().forEach((track) => track.stop());
+        ConsoleLogger.info(
+          "Permission granted to access the camera/microphone."
+        )
+        setIsMicPermissionDenied(false)
+        setIsCameraPermissionDenied(false)
+        stream.getTracks().forEach((track) => track.stop())
       })
       .catch((error: DOMException) => {
         if (error.name === "NotAllowedError") {
-          toast.error(pemDeniedMessage);
-          setIsMicPermissionDenied(true);
-          setIsCameraPermissionDenied(true);
+          toast.error(pemDeniedMessage)
+          setIsMicPermissionDenied(true)
+          setIsCameraPermissionDenied(true)
         } else {
-          ConsoleLogger.error(error);
+          ConsoleLogger.error(error)
         }
       })
       .finally(async () => {
-        setIsRequestingPermission(false);
-        await enumerateDevices();
-        requestNotificationPermission();
-      });
-  };
+        setIsRequestingPermission(false)
+        await enumerateDevices()
+        requestNotificationPermission()
+      })
+  }, [config, enumerateDevices, pemDeniedMessage])
+
+  const enumerateDevicesRef = useLatestRef(enumerateDevices)
+  const handleEnumerationRef = useLatestRef(handleEnumerationUsingMediaStream)
 
   useEffect(() => {
-    ConsoleLogger.info("Checking enumerate support");
+    ConsoleLogger.info("Checking enumerate support")
 
     if (!enumerateSupported) {
-      return;
+      return
     }
 
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       if (devices.some((device) => device.label === "")) {
-        handleEnumerationUsingMediaStream();
+        void handleEnumerationRef.current()
       } else {
-        enumerateDevices();
+        void enumerateDevicesRef.current()
       }
-    });
-  }, []);
+    })
+  }, [enumerateSupported, enumerateDevicesRef, handleEnumerationRef])
 
   return {
     isEnumerateSupported: enumerateSupported,
@@ -122,5 +140,5 @@ export default function useRecordingDevices({
     setSelectedAudioDevice,
     selectedVideoDevice,
     setSelectedVideoDevice,
-  };
+  }
 }
