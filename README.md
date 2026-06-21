@@ -2,6 +2,8 @@
 
 Browser-based media recorder demo built with Next.js. Capture camera, microphone, screen, or screen + camera using core Web APIs (`getUserMedia`, `getDisplayMedia`, `MediaRecorder`). Preview locally, download, keep recordings in the current session, or use the resulting blob in any API payload.
 
+![Capture Studio recorder menu](docs/images/capture-studio-menu.png)
+
 > **Note:** This app does not use WebRTC peer connections (ICE, SFU, signaling). It is a client-side capture demo only—no upload pipeline is included.
 
 ## Features
