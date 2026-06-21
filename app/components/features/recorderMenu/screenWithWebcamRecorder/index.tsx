@@ -226,16 +226,17 @@ export default function ScreenWithWebcamRecorder({
             muted
             aria-hidden="true"
           />
-          <DraggableWebcamPip
-            containerRef={compositeContainerRef}
-            screenVideoRef={screenRef}
-            videoRef={videoRef}
-            cameraStream={cameraStream}
-            placement={webcamOverlay}
-            onPlacementChange={setWebcamOverlay}
-            mirror={recorderSettings.mirror}
-            overlayOnRecording={showCompositePreview}
-          />
+          {!showCompositePreview ? (
+            <DraggableWebcamPip
+              containerRef={compositeContainerRef}
+              screenVideoRef={screenRef}
+              videoRef={videoRef}
+              cameraStream={cameraStream}
+              placement={webcamOverlay}
+              onPlacementChange={setWebcamOverlay}
+              mirror={recorderSettings.mirror}
+            />
+          ) : null}
         </div>
       }
     />
